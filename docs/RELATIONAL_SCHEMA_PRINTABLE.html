@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>InternTrack — Relational Schema & Strong/Weak Entity Classification (Hardcopy Deliverable)</title>
+  <style>
+    @page {
+      size: A4 portrait;
+      margin: 15mm 12mm;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      color: #0f172a;
+      background: #ffffff;
+      padding: 24px;
+      line-height: 1.5;
+    }
+    .header-box {
+      border: 2px solid #0f172a;
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-bottom: 20px;
+      background: #f8fafc;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .header-title h1 {
+      font-size: 18pt;
+      font-weight: 800;
+      color: #0f172a;
+    }
+    .header-title p {
+      font-size: 10pt;
+      color: #475569;
+      margin-top: 4px;
+    }
+    .header-meta {
+      text-align: right;
+      font-size: 9pt;
+      color: #334155;
+    }
+    .badge {
+      display: inline-block;
+      padding: 2px 7px;
+      font-size: 7.5pt;
+      font-weight: 700;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+    .badge-primary { background: #0284c7; color: #fff; }
+    .badge-strong { background: #0369a1; color: #fff; }
+    .badge-weak { background: #c2410c; color: #fff; }
+    .badge-assoc { background: #15803d; color: #fff; }
+    
+    h2 {
+      font-size: 13pt;
+      font-weight: 700;
+      color: #0f172a;
+      border-bottom: 2px solid #cbd5e1;
+      padding-bottom: 4px;
+      margin-top: 24px;
+      margin-bottom: 12px;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 16px;
+      font-size: 8.5pt;
+    }
+    th, td {
+      border: 1px solid #cbd5e1;
+      padding: 6px 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #f1f5f9;
+      color: #0f172a;
+      font-weight: 700;
+    }
+    tr:nth-child(even) td {
+      background: #f8fafc;
+    }
+    
+    .schema-card {
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 10px 14px;
+      margin-bottom: 10px;
+      background: #ffffff;
+      page-break-inside: avoid;
+    }
+    .schema-card-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    .schema-card-title h3 {
+      font-size: 10.5pt;
+      font-weight: 700;
+      color: #0f172a;
+    }
+    .schema-attrs {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+      font-size: 8.5pt;
+      color: #1e293b;
+      margin-bottom: 4px;
+    }
+    .schema-meta {
+      font-size: 8pt;
+      color: #475569;
+    }
+    u {
+      font-weight: 700;
+      text-decoration: underline;
+    }
+    .print-bar {
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: flex-end;
+    }
+    .btn-print {
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 8px 18px;
+      font-size: 10pt;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    @media print {
+      .print-bar { display: none !important; }
+      body { padding: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="print-bar">
+    <button class="btn-print" onclick="window.print()">🖨️ Print / Save Hardcopy as PDF</button>
+  </div>
+
+  <div class="header-box">
+    <div class="header-title">
+      <div style="margin-bottom: 6px;">
+        <span class="badge badge-primary">DBMS Level 3 Deliverable 3</span>
+      </div>
+      <h1>InternTrack — Relational Schema & Entity Classification</h1>
+      <p>Formal BCNF Schema with Strong Entities, Weak Entities, and Identifying Relationships</p>
+    </div>
+    <div class="header-meta">
+      <strong>PES UNIVERSITY, BENGALURU</strong><br>
+      Course: DBMS (UE22CS341AA / UE23CS351AA)<br>
+      Candidate: <strong>Sumukh Shandilya</strong> | Semester V CSE<br>
+      Total Normalized Relations: <strong>17</strong>
+    </div>
+  </div>
+
+  <h2>1. Entity Classification Summary (Strong vs. Weak vs. Associative)</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Classification</th>
+        <th>Relation / Table</th>
+        <th>Primary Key</th>
+        <th>Identifying Owner Entity</th>
+        <th>Discriminator / Partial Key</th>
+        <th>Cascade Semantics</th>
+        <th>Relational Justification</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="badge badge-strong">Strong Entity</span></td>
+        <td><code>app_user</code></td>
+        <td><code>user_id</code></td>
+        <td><em>None (Independent)</em></td>
+        <td>—</td>
+        <td>—</td>
+        <td>Root authentication authority. Surrogate key <code>user_id</code>, candidate key <code>email</code>.</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-strong">Strong Entity</span></td>
+        <td><code>department</code></td>
+        <td><code>dept_id</code></td>
+        <td><em>None (Independent)</em></td>
+        <td>—</td>
+        <td>—</td>
+        <td>Academic branches directory. Independent candidate key: <code>code</code> (CSE, AIML, etc.).</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-strong">Strong Entity</span></td>
+        <td><code>company</code></td>
+        <td><code>company_id</code></td>
+        <td><em>None (Independent)</em></td>
+        <td>—</td>
+        <td>—</td>
+        <td>Corporate employer entities. Independent candidate key: <code>name</code>.</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-strong">Strong Entity</span></td>
+        <td><code>skill</code></td>
+        <td><code>skill_id</code></td>
+        <td><em>None (Independent)</em></td>
+        <td>—</td>
+        <td>—</td>
+        <td>Standard technical taxonomy. Independent candidate key: <code>name</code>.</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-strong">Strong Entity</span></td>
+        <td><code>policy_config</code></td>
+        <td><code>policy_id</code></td>
+        <td><em>None (Independent)</em></td>
+        <td>—</td>
+        <td>—</td>
+        <td>Placement governance rule set. Candidate key: <code>policy_key</code>.</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-strong">Strong Entity</span></td>
+        <td><code>audit_log</code></td>
+        <td><code>log_id</code></td>
+        <td><em>None (Independent)</em></td>
+        <td>—</td>
+        <td>—</td>
+        <td>Append-only compliance audit trail. Independent surrogate key <code>log_id</code>.</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-strong">Strong Subtype</span></td>
+        <td><code>student</code></td>
+        <td><code>student_id</code></td>
+        <td><code>app_user</code> (1:1 Specialization)</td>
+        <td>—</td>
+        <td><code>ON DELETE CASCADE</code></td>
+        <td>Student profile entity with domain candidate key <code>usn</code> and <code>user_id</code>.</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-strong">Strong Subtype</span></td>
+        <td><code>recruiter</code></td>
+        <td><code>recruiter_id</code></td>
+        <td><code>app_user</code> (1:1 Specialization)</td>
+        <td>—</td>
+        <td><code>ON DELETE CASCADE</code></td>
+        <td>Corporate recruiter profile entity with candidate key <code>user_id</code>.</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-strong">Strong Entity</span></td>
+        <td><code>internship_posting</code></td>
+        <td><code>posting_id</code></td>
+        <td><code>company</code> (Owner)</td>
+        <td>—</td>
+        <td><code>ON DELETE RESTRICT</code></td>
+        <td>Job vacancy posting with independent surrogate key <code>posting_id</code>.</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-weak">Weak Entity</span></td>
+        <td><code>application_stage_history</code></td>
+        <td><code>history_id</code></td>
+        <td><strong><code>application</code></strong></td>
+        <td><code>changed_at</code></td>
+        <td><code>ON DELETE CASCADE</code></td>
+        <td><strong>Existence-Dependent Weak Entity:</strong> Stage transitions have no existential meaning without parent <code>application</code>. Guarded by <code>trg_stage_history_immutable</code>.</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-weak">Weak Entity</span></td>
+        <td><code>interview</code></td>
+        <td><code>interview_id</code></td>
+        <td><strong><code>application</code></strong></td>
+        <td><code>round_no</code></td>
+        <td><code>ON DELETE CASCADE</code></td>
+        <td><strong>Subordinate Weak Entity:</strong> Identified per application via discriminator <code>round_no</code> with integrity constraint <code>UNIQUE(application_id, round_no)</code>.</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-weak">Dependent Entity</span></td>
+        <td><code>offer</code></td>
+        <td><code>offer_id</code></td>
+        <td><strong><code>application</code></strong></td>
+        <td>—</td>
+        <td><code>ON DELETE CASCADE</code></td>
+        <td><strong>Dependent 1:1 Entity:</strong> Terminal contractual compensation record identified with parent <code>application</code> (<code>UNIQUE(application_id)</code>).</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-assoc">Associative Entity</span></td>
+        <td><code>student_skill</code></td>
+        <td><code>(student_id, skill_id)</code></td>
+        <td><code>student</code>, <code>skill</code></td>
+        <td>Composite PK</td>
+        <td><code>CASCADE / RESTRICT</code></td>
+        <td>Resolves M:N relationship between Student and Skill. Non-key attribute: <code>proficiency_level</code>.</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-assoc">Associative Entity</span></td>
+        <td><code>posting_skill</code></td>
+        <td><code>(posting_id, skill_id)</code></td>
+        <td><code>internship_posting</code>, <code>skill</code></td>
+        <td>Composite PK</td>
+        <td><code>CASCADE / CASCADE</code></td>
+        <td>Resolves M:N relationship between Internship Posting and Skill requirements. Non-key attribute: <code>min_level</code>.</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-assoc">Associative Entity</span></td>
+        <td><code>posting_eligible_dept</code></td>
+        <td><code>(posting_id, dept_id)</code></td>
+        <td><code>internship_posting</code>, <code>department</code></td>
+        <td>Composite PK</td>
+        <td><code>CASCADE / RESTRICT</code></td>
+        <td>Resolves M:N department eligibility whitelist for job postings.</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-assoc">Associative Entity</span></td>
+        <td><code>interview_panelist</code></td>
+        <td><code>(interview_id, recruiter_id)</code></td>
+        <td><code>interview</code>, <code>recruiter</code></td>
+        <td>Composite PK</td>
+        <td><code>CASCADE / RESTRICT</code></td>
+        <td>Resolves M:N relationship between Interview rounds and attending interviewers.</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-assoc">Associative Entity</span></td>
+        <td><code>application</code></td>
+        <td><code>application_id</code></td>
+        <td><code>student</code>, <code>internship_posting</code></td>
+        <td><code>(student_id, posting_id)</code></td>
+        <td><code>CASCADE / CASCADE</code></td>
+        <td>Resolves M:N relationship between Candidates and Openings with lifecycle attributes (<code>current_stage</code>, <code>match_score</code>).</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>2. Formal Relational Schema Definitions (BCNF Normalized)</h2>
+  
+  <div class="schema-card">
+    <div class="schema-card-title">
+      <h3>1. app_user</h3>
+      <span class="badge badge-strong">Strong Entity</span>
+    </div>
+    <div class="schema-attrs">app_user(<u>user_id</u>, email, password_hash, role, is_active, created_at, updated_at)</div>
+    <div class="schema-meta"><strong>Candidate Keys:</strong> {user_id}, {email} | <strong>Normal Form:</strong> BCNF</div>
+  </div>
+
+  <div class="schema-card">
+    <div class="schema-card-title">
+      <h3>2. department</h3>
+      <span class="badge badge-strong">Strong Entity</span>
+    </div>
+    <div class="schema-attrs">department(<u>dept_id</u>, name, code, created_at)</div>
+    <div class="schema-meta"><strong>Candidate Keys:</strong> {dept_id}, {code} | <strong>Normal Form:</strong> BCNF</div>
+  </div>
+
+  <div class="schema-card">
+    <div class="schema-card-title">
+      <h3>3. student</h3>
+      <span class="badge badge-strong">Strong Entity (Subtype of app_user)</span>
+    </div>
+    <div class="schema-attrs">student(<u>student_id</u>, user_id*, usn, full_name, dept_id*, cgpa, year_of_study, grad_year, phone, bio, profile_embedding, created_at, updated_at)</div>
+    <div class="schema-meta"><strong>Candidate Keys:</strong> {student_id}, {usn}, {user_id} | <strong>FK:</strong> user_id ➔ app_user(user_id) ON DELETE CASCADE, dept_id ➔ department(dept_id) | <strong>Normal Form:</strong> BCNF</div>
+  </div>
+
+  <div class="schema-card">
+    <div class="schema-card-title">
+      <h3>4. skill</h3>
+      <span class="badge badge-strong">Strong Entity</span>
+    </div>
+    <div class="schema-attrs">skill(<u>skill_id</u>, name, category, created_at)</div>
+    <div class="schema-meta"><strong>Candidate Keys:</strong> {skill_id}, {name} | <strong>Normal Form:</strong> BCNF</div>
+  </div>
+
+  <div class="schema-card">
+    <div class="schema-card-title">
+      <h3>5. student_skill</h3>
+      <span class="badge badge-assoc">Associative Entity</span>
+    </div>
+    <div class="schema-attrs">student_skill(<u>student_id*</u>, <u>skill_id*</u>, proficiency_level, created_at)</div>
+    <div class="schema-meta"><strong>Primary Key:</strong> {student_id, skill_id} | <strong>FK:</strong> student_id ➔ student(student_id), skill_id ➔ skill(skill_id) | <strong>Normal Form:</strong> BCNF</div>
+  </div>
+
+  <div class="schema-card">
+    <div class="schema-card-title">
+      <h3>6. company</h3>
+      <span class="badge badge-strong">Strong Entity</span>
+    </div>
+    <div class="schema-attrs">company(<u>company_id</u>, name, website, industry, size_range, verified, verified_by*, created_at)</div>
+    <div class="schema-meta"><strong>Candidate Keys:</strong> {company_id}, {name} | <strong>FK:</strong> verified_by ➔ app_user(user_id) ON DELETE SET NULL | <strong>Normal Form:</strong> BCNF</div>
+  </div>
+
+  <div class="schema-card">
+    <div class="schema-card-title">
+      <h3>7. recruiter</h3>
+      <span class="badge badge-strong">Strong Entity (Subtype of app_user)</span>
+    </div>
+    <div class="schema-attrs">recruiter(<u>recruiter_id</u>, user_id*, company_id*, full_name, designation, phone, created_at)</div>
+    <div class="schema-meta"><strong>Candidate Keys:</strong> {recruiter_id}, {user_id} | <strong>FK:</strong> user_id ➔ app_user(user_id), company_id ➔ company(company_id) | <strong>Normal Form:</strong> BCNF</div>
+  </div>
+
+  <div class="schema-card">
+    <div class="schema-card-title">
+      <h3>8. internship_posting</h3>
+      <span class="badge badge-strong">Strong Entity</span>
+    </div>
+    <div class="schema-attrs">internship_posting(<u>posting_id</u>, company_id*, created_by*, title, description, location, stipend, openings, filled, min_cgpa, deadline, mode, status, embedding, search_tsv, created_at, updated_at)</div>
+    <div class="schema-meta"><strong>Primary Key:</strong> {posting_id} | <strong>FK:</strong> company_id ➔ company(company_id), created_by ➔ recruiter(recruiter_id) | <strong>Normal Form:</strong> BCNF</div>
+  </div>
+
+  <div class="schema-card">
+    <div class="schema-card-title">
+      <h3>9. posting_eligible_dept</h3>
+      <span class="badge badge-assoc">Associative Entity</span>
+    </div>
+    <div class="schema-attrs">posting_eligible_dept(<u>posting_id*</u>, <u>dept_id*</u>)</div>
+    <div class="schema-meta"><strong>Primary Key:</strong> {posting_id, dept_id} | <strong>FK:</strong> posting_id ➔ internship_posting(posting_id), dept_id ➔ department(dept_id) | <strong>Normal Form:</strong> BCNF</div>
+  </div>
+
+  <div class="schema-card">
+    <div class="schema-card-title">
+      <h3>10. posting_skill</h3>
+      <span class="badge badge-assoc">Associative Entity</span>
+    </div>
+    <div class="schema-attrs">posting_skill(<u>posting_id*</u>, <u>skill_id*</u>, min_level)</div>
+    <div class="schema-meta"><strong>Primary Key:</strong> {posting_id, skill_id} | <strong>FK:</strong> posting_id ➔ internship_posting(posting_id), skill_id ➔ skill(skill_id) | <strong>Normal Form:</strong> BCNF</div>
+  </div>
+
+  <div class="schema-card">
+    <div class="schema-card-title">
+      <h3>11. application</h3>
+      <span class="badge badge-assoc">Associative Entity with Lifecycle State</span>
+    </div>
+    <div class="schema-attrs">application(<u>application_id</u>, student_id*, posting_id*, applied_at, current_stage, match_score, withdrawn_at, created_at, updated_at)</div>
+    <div class="schema-meta"><strong>Candidate Keys:</strong> {application_id}, {student_id, posting_id} | <strong>FK:</strong> student_id ➔ student(student_id), posting_id ➔ internship_posting(posting_id) | <strong>Normal Form:</strong> BCNF</div>
+  </div>
+
+  <div class="schema-card">
+    <div class="schema-card-title">
+      <h3>12. application_stage_history</h3>
+      <span class="badge badge-weak">Weak Entity (Identifying Owner: application)</span>
+    </div>
+    <div class="schema-attrs">application_stage_history(<u>history_id</u>, application_id*, from_stage, to_stage, changed_by*, reason, changed_at)</div>
+    <div class="schema-meta"><strong>Primary Key:</strong> {history_id} | <strong>FK:</strong> application_id ➔ application(application_id) ON DELETE CASCADE | <strong>Normal Form:</strong> BCNF</div>
+  </div>
+
+  <div class="schema-card">
+    <div class="schema-card-title">
+      <h3>13. interview</h3>
+      <span class="badge badge-weak">Weak Entity (Identifying Owner: application)</span>
+    </div>
+    <div class="schema-attrs">interview(<u>interview_id</u>, application_id*, round_no, scheduled_at, duration_min, mode, link_or_room, status, created_at)</div>
+    <div class="schema-meta"><strong>Primary Key:</strong> {interview_id} | <strong>Candidate Key:</strong> {application_id, round_no} | <strong>FK:</strong> application_id ➔ application(application_id) ON DELETE CASCADE | <strong>Normal Form:</strong> BCNF</div>
+  </div>
+
+  <div class="schema-card">
+    <div class="schema-card-title">
+      <h3>14. interview_panelist</h3>
+      <span class="badge badge-assoc">Associative Entity</span>
+    </div>
+    <div class="schema-attrs">interview_panelist(<u>interview_id*</u>, <u>recruiter_id*</u>)</div>
+    <div class="schema-meta"><strong>Primary Key:</strong> {interview_id, recruiter_id} | <strong>FK:</strong> interview_id ➔ interview(interview_id), recruiter_id ➔ recruiter(recruiter_id) | <strong>Normal Form:</strong> BCNF</div>
+  </div>
+
+  <div class="schema-card">
+    <div class="schema-card-title">
+      <h3>15. offer</h3>
+      <span class="badge badge-weak">Dependent Entity (1:1 with application)</span>
+    </div>
+    <div class="schema-attrs">offer(<u>offer_id</u>, application_id*, stipend, start_date, expires_at, status, created_at, responded_at)</div>
+    <div class="schema-meta"><strong>Candidate Keys:</strong> {offer_id}, {application_id} | <strong>FK:</strong> application_id ➔ application(application_id) ON DELETE CASCADE | <strong>Normal Form:</strong> BCNF</div>
+  </div>
+
+  <div class="schema-card">
+    <div class="schema-card-title">
+      <h3>16. policy_config</h3>
+      <span class="badge badge-strong">Strong Entity</span>
+    </div>
+    <div class="schema-attrs">policy_config(<u>policy_id</u>, policy_key, policy_value, description, updated_by*, updated_at)</div>
+    <div class="schema-meta"><strong>Candidate Keys:</strong> {policy_id}, {policy_key} | <strong>FK:</strong> updated_by ➔ app_user(user_id) | <strong>Normal Form:</strong> BCNF</div>
+  </div>
+
+  <div class="schema-card">
+    <div class="schema-card-title">
+      <h3>17. audit_log</h3>
+      <span class="badge badge-strong">Strong Entity</span>
+    </div>
+    <div class="schema-attrs">audit_log(<u>log_id</u>, user_id*, action, entity_name, entity_id, details, ip_address, created_at)</div>
+    <div class="schema-meta"><strong>Primary Key:</strong> {log_id} | <strong>FK:</strong> user_id ➔ app_user(user_id) | <strong>Normal Form:</strong> BCNF</div>
+  </div>
+
+</body>
+</html>

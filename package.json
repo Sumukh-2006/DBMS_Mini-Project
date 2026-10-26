@@ -10,6 +10,8 @@
     "lint": "next lint",
     "db:migrate": "node scripts/migrate.js",
     "db:seed": "node scripts/seed.js",
+    "db:show-table": "node scripts/show_table.js",
+    "db:demo-triggers": "node scripts/demo_triggers.js",
     "test": "node --test tests/*.test.js"
   },
   "dependencies": {

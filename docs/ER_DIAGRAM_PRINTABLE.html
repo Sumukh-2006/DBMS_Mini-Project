@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>InternTrack — Entity-Relationship (ER) Diagram (Hardcopy Deliverable)</title>
+  <style>
+    @page {
+      size: A4 landscape;
+      margin: 12mm 10mm;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      color: #1e293b;
+      background: #ffffff;
+      padding: 20px;
+    }
+    .header-box {
+      border: 2px solid #0f172a;
+      border-radius: 8px;
+      padding: 16px 24px;
+      margin-bottom: 20px;
+      background: #f8fafc;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .header-title h1 {
+      font-size: 20pt;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.5px;
+    }
+    .header-title p {
+      font-size: 10pt;
+      color: #475569;
+      margin-top: 4px;
+      font-weight: 500;
+    }
+    .header-meta {
+      text-align: right;
+      font-size: 9.5pt;
+      color: #334155;
+      line-height: 1.5;
+    }
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      font-size: 8pt;
+      font-weight: 700;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .badge-primary {
+      background: #0284c7;
+      color: #ffffff;
+    }
+    .legend-box {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 16px;
+      padding: 10px 16px;
+      background: #f1f5f9;
+      border-radius: 6px;
+      font-size: 9pt;
+      align-items: center;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .legend-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+    }
+    .diagram-container {
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 24px;
+      background: #ffffff;
+      display: flex;
+      justify-content: center;
+      min-height: 520px;
+    }
+    .notes-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 20px;
+    }
+    .note-card {
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 12px 14px;
+      background: #f8fafc;
+    }
+    .note-card h4 {
+      font-size: 9.5pt;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 6px;
+    }
+    .note-card p, .note-card ul {
+      font-size: 8.5pt;
+      color: #475569;
+      line-height: 1.45;
+    }
+    .note-card ul {
+      padding-left: 16px;
+    }
+    .print-bar {
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+    .btn-print {
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 8px 18px;
+      font-size: 10pt;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .btn-print:hover {
+      background: #1d4ed8;
+    }
+    @media print {
+      .print-bar {
+        display: none !important;
+      }
+      body {
+        padding: 0;
+      }
+      .diagram-container {
+        border: none;
+        padding: 0;
+      }
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'default',
+      themeVariables: {
+        primaryColor: '#e0f2fe',
+        primaryTextColor: '#0f172a',
+        primaryBorderColor: '#0284c7',
+        lineColor: '#334155',
+        secondaryColor: '#fef3c7',
+        tertiaryColor: '#f1f5f9'
+      }
+    });
+  </script>
+</head>
+<body>
+
+  <div class="print-bar">
+    <button class="btn-print" onclick="window.print()">🖨️ Print / Save Hardcopy as PDF</button>
+  </div>
+
+  <div class="header-box">
+    <div class="header-title">
+      <div style="margin-bottom: 6px;">
+        <span class="badge badge-primary">DBMS Level 3 Deliverable 2</span>
+      </div>
+      <h1>InternTrack — Conceptual Entity-Relationship (ER) Diagram</h1>
+      <p>Internship Lifecycle Management & Semantic Matching Platform | Department of CSE</p>
+    </div>
+    <div class="header-meta">
+      <strong>PES UNIVERSITY, BENGALURU</strong><br>
+      Course: Database Management Systems (UE22CS341AA / UE23CS351AA)<br>
+      Candidate: <strong>Sumukh Shandilya</strong> | Semester V CSE<br>
+      Database: <strong>PostgreSQL 16 (pgvector) + MongoDB 7.0</strong>
+    </div>
+  </div>
+
+  <div class="legend-box">
+    <strong>Legend:</strong>
+    <div class="legend-item"><div class="legend-dot" style="background: #0284c7;"></div> <strong>Strong Entity:</strong> Regular entity with independent primary key</div>
+    <div class="legend-item"><div class="legend-dot" style="background: #ea580c;"></div> <strong>Weak Entity:</strong> Identified through parent entity (e.g. Stage History, Interview)</div>
+    <div class="legend-item"><div class="legend-dot" style="background: #16a34a;"></div> <strong>Associative Entity:</strong> Bridge relation resolving M:N cardinality</div>
+    <div class="legend-item"><div class="legend-dot" style="background: #9333ea;"></div> <strong>Vector Attribute:</strong> 384-dimensional dense semantic embedding</div>
+  </div>
+
+  <div class="diagram-container">
+    <pre class="mermaid">
+erDiagram
+    APP_USER ||--o| STUDENT : "specializes as (1:0..1)"
+    APP_USER ||--o| RECRUITER : "specializes as (1:0..1)"
+    DEPARTMENT ||--o{ STUDENT : "enrolls (1:N)"
+    DEPARTMENT ||--o{ POSTING_ELIGIBLE_DEPT : "whitelisted in (1:N)"
+    
+    COMPANY ||--o{ RECRUITER : "employs (1:N)"
+    COMPANY ||--o{ INTERNSHIP_POSTING : "issues (1:N)"
+    
+    STUDENT ||--o{ STUDENT_SKILL : "possesses (1:N)"
+    SKILL ||--o{ STUDENT_SKILL : "classified in (1:N)"
+    SKILL ||--o{ POSTING_SKILL : "required in (1:N)"
+    
+    INTERNSHIP_POSTING ||--o{ POSTING_SKILL : "specifies (1:N)"
+    INTERNSHIP_POSTING ||--o{ POSTING_ELIGIBLE_DEPT : "restricts to (1:N)"
+    INTERNSHIP_POSTING ||--o{ APPLICATION : "receives (1:N)"
+    
+    STUDENT ||--o{ APPLICATION : "submits (1:N)"
+    APPLICATION ||--o{ APPLICATION_STAGE_HISTORY : "tracks (1:N) [WEAK]"
+    APPLICATION ||--o{ INTERVIEW : "schedules (1:N) [WEAK]"
+    APPLICATION ||--o| OFFER : "results in (1:0..1) [DEPENDENT]"
+    
+    INTERVIEW ||--o{ INTERVIEW_PANELIST : "conducted by (1:N)"
+    RECRUITER ||--o{ INTERVIEW_PANELIST : "participates in (1:N)"
+    
+    APP_USER ||--o{ AUDIT_LOG : "triggers (1:N)"
+    APP_USER ||--o{ POLICY_CONFIG : "configures (1:N)"
+
+    APP_USER {
+        int user_id PK "Surrogate Key"
+        string email UK "Unique Credential"
+        string password_hash "Bcrypt Hash"
+        string role "student | recruiter | admin"
+        boolean is_active "Default TRUE"
+    }
+
+    STUDENT {
+        int student_id PK "Surrogate Key"
+        int user_id FK "1:1 with app_user"
+        string usn UK "University Seat Number"
+        string full_name "Legal Name"
+        int dept_id FK "Enrolled Department"
+        decimal cgpa "Academic GPA (0-10)"
+        int year_of_study "1-4"
+        int grad_year "Graduation Year"
+        vector profile_embedding "384-d pgvector"
+    }
+
+    DEPARTMENT {
+        int dept_id PK "Surrogate Key"
+        string code UK "e.g. CSE, AIML, ECE"
+        string name "Department Name"
+    }
+
+    COMPANY {
+        int company_id PK "Surrogate Key"
+        string name UK "Company Legal Name"
+        string website "Corporate URL"
+        string industry "Sector / Domain"
+        string size_range "Employee Scale"
+        boolean verified "Admin Approved"
+    }
+
+    RECRUITER {
+        int recruiter_id PK "Surrogate Key"
+        int user_id FK "1:1 with app_user"
+        int company_id FK "Employer Company"
+        string full_name "Contact Person"
+        string designation "Job Title"
+        string phone "Phone Number"
+    }
+
+    SKILL {
+        int skill_id PK "Surrogate Key"
+        string name UK "Canonical Name"
+        string category "Domain Category"
+    }
+
+    INTERNSHIP_POSTING {
+        int posting_id PK "Surrogate Key"
+        int company_id FK "Hiring Company"
+        int created_by FK "Recruiter ID"
+        string title "Position Title"
+        decimal stipend "Monthly Stipend"
+        int openings "Available Seats"
+        int filled "Filled Openings"
+        decimal min_cgpa "Eligibility Cutoff"
+        timestamp deadline "Application Cutoff"
+        string status "draft | open | closed"
+        vector embedding "384-d pgvector"
+    }
+
+    APPLICATION {
+        int application_id PK "Surrogate Key"
+        int student_id FK "Candidate"
+        int posting_id FK "Internship"
+        string current_stage "State Machine Enum"
+        decimal match_score "Skill/Vector Match"
+        timestamp applied_at "Submission Time"
+    }
+
+    APPLICATION_STAGE_HISTORY {
+        int history_id PK "[WEAK ENTITY]"
+        int application_id FK "Identifying Owner"
+        string from_stage "Previous Stage"
+        string to_stage "Next Stage"
+        int changed_by FK "Authorized User"
+        text reason "Audit Notes"
+        timestamp changed_at "Discriminator"
+    }
+
+    INTERVIEW {
+        int interview_id PK "[WEAK ENTITY]"
+        int application_id FK "Identifying Owner"
+        int round_no "Partial Discriminator"
+        timestamp scheduled_at "Meeting Start"
+        int duration_min "Length in Minutes"
+        string mode "online | in-person"
+        string status "scheduled | completed"
+    }
+
+    OFFER {
+        int offer_id PK "[DEPENDENT ENTITY]"
+        int application_id FK, UK "1:1 Identifying Owner"
+        decimal stipend "Offered Amount"
+        date start_date "Internship Start"
+        date expires_at "Acceptance Deadline"
+        string status "pending | accepted | declined"
+    }
+
+    STUDENT_SKILL {
+        int student_id PK, FK "Composite Key"
+        int skill_id PK, FK "Composite Key"
+        int proficiency_level "Level 1 to 5"
+    }
+
+    POSTING_SKILL {
+        int posting_id PK, FK "Composite Key"
+        int skill_id PK, FK "Composite Key"
+        int min_level "Minimum Level 1-5"
+    }
+
+    POSTING_ELIGIBLE_DEPT {
+        int posting_id PK, FK "Composite Key"
+        int dept_id PK, FK "Composite Key"
+    }
+
+    INTERVIEW_PANELIST {
+        int interview_id PK, FK "Composite Key"
+        int recruiter_id PK, FK "Composite Key"
+    }
+
+    POLICY_CONFIG {
+        int policy_id PK "Surrogate Key"
+        string policy_key UK "Config Key"
+        string policy_value "Config Value"
+        string description "Policy Scope"
+    }
+
+    AUDIT_LOG {
+        int log_id PK "Surrogate Key"
+        int user_id FK "Actor"
+        string action "Event Type"
+        string entity_name "Target Table"
+        int entity_id "Target ID"
+        timestamp created_at "Immutable Timestamp"
+    }
+    </pre>
+  </div>
+
+  <div class="notes-grid">
+    <div class="note-card">
+      <h4>Strong Entities (Independent)</h4>
+      <ul>
+        <li><code>app_user</code>: Root identity for student, recruiter, admin.</li>
+        <li><code>department</code>: PES University academic branches.</li>
+        <li><code>company</code>: Corporate hiring partners.</li>
+        <li><code>skill</code>: Master dictionary of technical skills.</li>
+        <li><code>policy_config</code> & <code>audit_log</code>: Governance and security.</li>
+      </ul>
+    </div>
+    <div class="note-card">
+      <h4>Weak & Dependent Entities</h4>
+      <ul>
+        <li><strong><code>application_stage_history</code></strong>: Existence-dependent on <code>application</code> (Owner). Cascades on deletion; immutable.</li>
+        <li><strong><code>interview</code></strong>: Subordinate to <code>application</code>; identified by <code>(application_id, round_no)</code>.</li>
+        <li><strong><code>offer</code></strong>: Dependent 1:1 on <code>application</code>.</li>
+      </ul>
+    </div>
+    <div class="note-card">
+      <h4>Associative Entities (M:N)</h4>
+      <ul>
+        <li><code>application</code>: Student ➔ Internship Posting</li>
+        <li><code>student_skill</code>: Student ➔ Skill</li>
+        <li><code>posting_skill</code>: Internship Posting ➔ Skill</li>
+        <li><code>posting_eligible_dept</code>: Posting ➔ Dept</li>
+        <li><code>interview_panelist</code>: Interview ➔ Recruiter</li>
+      </ul>
+    </div>
+  </div>
+
+</body>
+</html>

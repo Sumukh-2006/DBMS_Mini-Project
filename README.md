@@ -275,8 +275,8 @@ Every aspect of this project is documented in the [`docs/`](./docs) folder:
 | [**10_architecture.md**](./docs/10_architecture.md) | System Architecture & End-to-End Workflow Sequence Diagrams |
 | [**12_testing_results.md**](./docs/12_testing_results.md) | 16-Test Verification Report, Concurrency Logs, and Invariants |
 | [**13_conclusion.md**](./docs/13_conclusion.md) | Evaluation Rubric Checklist, Limitations, and Future Roadmap |
-| [**DEMO_GUIDE.md**](./DEMO_GUIDE.md) | Rubric-Mapped Step-by-Step Evaluator Walkthrough Guide |
-| [**VIVA_GUIDE.md**](./VIVA_GUIDE.md) | Technical Viva Preparation: Questions, Answers, & Database Theory |
+| [**COMPLETE_EXECUTION_GUIDE.md**](./docs/COMPLETE_EXECUTION_GUIDE.md) | Master End-to-End Execution Guide & Viva Defense Manual |
+| [**VIVA_EVALUATION_GUIDE.md**](./docs/VIVA_EVALUATION_GUIDE.md) | Quick Viva Deliverables Checklist & Rubric Verification |
 
 ---
 
@@ -291,23 +291,29 @@ Every aspect of this project is documented in the [`docs/`](./docs) folder:
 │   ├── globals.css                   # Custom Dark Glassmorphism Styling
 │   └── page.js                       # Landing Page with 1-Click Demo Switcher
 ├── db/                               # Relational Schema & Migrations
+│   ├── all_ddl.sql                   # Single Consolidated Master DDL Script
+│   ├── all_dml.sql                   # Single Consolidated Master DML Insert Script
 │   └── migrations/                   # 001_init to 005_alter_demo + 006_seed
 ├── docs/                             # Complete Academic Documentation Reports (01–13)
+│   ├── COMPLETE_EXECUTION_GUIDE.md   # Master End-to-End Execution & Defense Guide
+│   ├── VIVA_EVALUATION_GUIDE.md      # Deliverables Checklist & Live Demo Guide
+│   ├── ER_DIAGRAM_PRINTABLE.html     # Print-Ready Hardcopy ER Diagram
+│   └── RELATIONAL_SCHEMA_PRINTABLE.html # Print-Ready Hardcopy Relational Schema
 ├── lib/                              # Core Drivers & Business Logic
 │   ├── aggregations.js               # 5 MongoDB Aggregation Pipelines
 │   ├── auth.js                       # JWT, Bcrypt, & RBAC Middleware
 │   ├── db.js                         # PostgreSQL Pool & Transaction Helpers
 │   ├── embeddings.js                 # 384-d Dense Semantic Vector Generator
 │   └── mongo.js                      # MongoDB Client & 30-Day TTL Indexes
-├── scripts/                          # DevOps Automation
+├── scripts/                          # DevOps Automation & Demonstration Scripts
+│   ├── demo_triggers.js              # Live Before & After Trigger Verification
+│   ├── show_table.js                 # "SHOW CREATE TABLE" DDL Extractor
 │   ├── migrate.js                    # Sequential SQL Migration Runner
 │   └── seed.js                       # Polyglot Seeder (Postgres + Mongo + Vectors)
 ├── tests/                            # Automated Verification (40/40 Passing)
 │   ├── http_routes.test.js           # 13 Live HTTP Endpoint & Tenant Isolation Tests
 │   └── interntrack.test.js           # 27 Database Constraint, Concurrency & Aggregation Tests
 ├── docker-compose.yml                # Multi-Container PostgreSQL + MongoDB Stack
-├── DEMO_GUIDE.md                     # Evaluator Walkthrough Guide
-├── VIVA_GUIDE.md                     # Technical Viva Preparation
 └── README.md                         # Project Master Documentation
 ```
 
