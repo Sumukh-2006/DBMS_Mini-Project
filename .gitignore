@@ -1,0 +1,53 @@
+# Dependencies
+node_modules/
+/.pnp
+.pnp.js
+
+# Testing & Coverage
+/coverage
+
+# Next.js build outputs
+.next/
+out/
+build/
+dist/
+
+# Environment files & Secrets
+.env
+.env*.local
+.env.production
+.env.staging
+# Keep .env.example tracked for reproducible setup
+!.env.example
+
+# Database & Docker persistent storage
+postgres_data/
+mongo_data/
+
+# Logs & Debugging
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+*.log
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+*.pem
+
+# IDE & Editor configs
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sublime-project
+*.sublime-workspace
+
+# Sub-repositories / Local clone backup
+Repo/
