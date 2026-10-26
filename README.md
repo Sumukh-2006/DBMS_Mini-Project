@@ -20,7 +20,7 @@
 [Explore Architecture](#-architecture--polyglot-engine) •
 [Quickstart](#-quickstart-in-3-minutes) •
 [Demo Portals](#-role-based-demo-portals) •
-[Test Suite](#-automated-test-suite-1616-passing) •
+[Test Suite](#-automated-test-suite-4040-passing) •
 [Docs Index](#-academic-documentation)
 
 <br/>
@@ -65,7 +65,7 @@ graph TD
 
     subgraph AppServer ["Fullstack Next.js 14 Engine (Node.js)"]
         AuthMid["JWT Auth & RBAC Security<br/>(HTTP-Only Cookies, Bcrypt)"]
-        APIRoutes["26 Dynamic REST API Handlers<br/>(/api/student, /api/recruiter, /api/admin)"]
+        APIRoutes["30 Dynamic REST API Handlers<br/>(/api/student, /api/recruiter, /api/admin)"]
         VectorEngine["384-d Vector Transformer<br/>(Dense Cosine Embedding)"]
         PGPool["PostgreSQL Pool (pg)<br/>(ACID Transactions, Row Locks)"]
         MongoClient["MongoDB Client Pool<br/>(Mongoose / MongoDB Native)"]
@@ -125,12 +125,13 @@ npm run db:migrate
 # 2. Seed realistic students, 384-d vectors, postings, resumes, and reviews
 npm run db:seed
 ```
+> **Safety Guard:** `scripts/seed.js` performs a destructive reset across all 17 tables and MongoDB collections for demonstration environments. When executed in production (`NODE_ENV=production`), it requires `ALLOW_DESTRUCTIVE_SEED=true` to prevent accidental data loss.
 
 ### 4. Run Automated Test Suite
 ```bash
 npm test
 ```
-> **Output:** `pass 16, fail 0` — All relational constraints, triggers, pessimistic locks, vector searches, and MongoDB aggregations verified.
+> **Output:** `pass 40, fail 0` — 27 database constraints, triggers, pessimistic locks, concurrency races, vector searches, and MongoDB aggregations + 13 full HTTP endpoint integration and tenant isolation tests verified.
 
 ### 5. Launch the Platform
 ```bash
@@ -152,19 +153,32 @@ The landing page features a **1-Click Evaluator Demo Switcher** for instant test
 
 | Portal | Email | Password | What to Test |
 |---|---|---|---|
-| **Student (Placed)** | `aditi@pesu.pes.edu` | `password123` | View AI semantic recommendations (`91.85% Match`), check Kanban pipeline, test locked placed status. |
-| **Student (Unplaced)** | `rohan@pesu.pes.edu` | `password123` | Apply to openings, inspect interview schedules, accept offers with atomic cascading withdrawal. |
-| **Recruiter (Google)** | `vikram@google.com` | `password123` | Applicant funnel, trigger `sp_advance_stage`, find similar candidates via vector proximity. |
-| **Recruiter (Microsoft)** | `priya@microsoft.com` | `password123` | Schedule interviews, test clash detection trigger, issue formal compensation offers. |
-| **Placement Cell Admin** | `admin@pesu.pes.edu` | `adminpassword` | Vetting queue, policy tuning, `mv_skill_demand` refresh, download official NAAC/NBA CSV exports. |
+| **Student (Unplaced)** | `sumukh.student@pes.edu` | `password123` | Apply to openings, inspect AI recommendations, accept offers with atomic cascading withdrawal. |
+| **Student (Placed)** | `arjun.kapoor@pes.edu` | `password123` | View locked placement status (`current_stage = 'Accepted'`), inspect finalized offer details. |
+| **Recruiter (Google)** | `sarah.recruiter@google.com` | `password123` | Applicant funnel, trigger `sp_advance_stage`, find similar candidates via vector proximity. |
+| **Recruiter (Microsoft)** | `priya.sharma@microsoft.com` | `password123` | Schedule interviews, test clash detection trigger, issue formal compensation offers. |
+| **Placement Cell Admin** | `admin@pes.edu` | `password123` | Vetting queue, policy tuning, `mv_skill_demand` refresh, download official NAAC/NBA CSV exports. |
 
 ---
 
-## 🧪 Automated Test Suite (16/16 Passing)
+## 🧪 Automated Test Suite (40/40 Passing)
 
-InternTrack includes an automated test harness in [`tests/interntrack.test.js`](file:///Users/Sumukh_Shandilya/Documents/PES%20UNIVERSITY/V%20SEM/DBMS/Mini-Project/tests/interntrack.test.js) executed via `npm test`:
+InternTrack includes an automated test harness in [`tests/interntrack.test.js`](tests/interntrack.test.js) and [`tests/http_routes.test.js`](tests/http_routes.test.js) executed via `npm test`:
 
 ```
+✔ HTTP 1.1 Bulk-Stage: Missing or invalid authentication returns 401
+✔ HTTP 1.2 Bulk-Stage: Missing required fields or empty batch returns 400
+✔ HTTP 1.3 Bulk-Stage: Malformed IDs or invalid stage returns 400
+✔ HTTP 1.4 Bulk-Stage: Authorized recruiter advancing own company applications succeeds (200)
+✔ HTTP 1.5 Bulk-Stage: Recruiter attempting to modify another company applications is strictly blocked (403)
+✔ HTTP 1.6 Bulk-Stage: Mixed batch containing valid and unauthorized IDs is rejected with 403 and zero mutations
+✔ HTTP 1.7 Bulk-Stage: Subsequent valid request succeeds after a rejected request (verifying connection health)
+✔ HTTP 2.1 Applicants: Recruiter viewing another company posting applicants is blocked with 403
+✔ HTTP 2.2 Applicants: Recruiter viewing own company applicants succeeds with 200
+✔ HTTP 2.3 Offers: Recruiter issuing offer to another company applicant is blocked with 403
+✔ HTTP 2.4 Interviews: Recruiter scheduling interview for another company candidate is blocked with 403
+✔ HTTP 2.5 Student Offers: Student attempting to decline another student offer is blocked with 403
+✔ HTTP 2.6 Postings: Recruiter belonging to an unverified company is blocked from creating postings (403)
 ✔ 1.1 Schema Constraint: Block invalid student CGPA > 10.00
 ✔ 1.2 Schema Constraint: Block duplicate application for same student and posting
 ✔ 1.3 Schema Constraint: Block posting filled count exceeding openings
@@ -173,17 +187,25 @@ InternTrack includes an automated test harness in [`tests/interntrack.test.js`](
 ✔ 2.2 Trigger trg_history_immutable: Strictly block DELETE on audit_log
 ✔ 2.3 Trigger trg_block_late_apply: Block application if posting is closed or deadline passed
 ✔ 2.4 Trigger trg_interview_clash: Detect and block overlapping interview schedule
+✔ 2.5 Partial Unique Index: uq_student_single_accepted_application blocks multiple accepted applications
 ✔ 3.1 sp_apply: Reject application if student CGPA is below cutoff
 ✔ 3.2 sp_advance_stage: Block illegal stage transition from Applied directly to Accepted
 ✔ 3.3 sp_issue_offer: Issue offer and advance application stage to Offered
 ✔ 3.4 sp_accept_offer & University Cascade Policy: Concurrency-safe acceptance auto-withdraws other active apps
-✔ 4.1 Concurrency: Prevent race condition claiming last opening with SELECT ... FOR UPDATE
+✔ 3.5 sp_accept_offer: Expired offer rejection (Scenario D)
+✔ 4.1 Concurrency Scenario A: Prevent race condition claiming last opening with SELECT ... FOR UPDATE (parallel execution)
+✔ 4.2 Concurrency Scenario B: One student accepts two offers in parallel with deadlock freedom
+✔ 4.3 Idempotency Scenario C: Repeated acceptance request fails cleanly with controlled error
 ✔ 5.1 pgvector: Cosine distance calculation with 384-dimensional vectors
 ✔ 6.1 MongoDB Aggregation: Average Rating per Company
 ✔ 6.2 MongoDB Aggregation: Resume Skills Frequency
 ✔ 6.3 MongoDB Aggregation: Interview Rubric Dynamic Keys
+✔ 6.4 MongoDB Aggregation: Activity Heatmap by Day of Week and Hour
+✔ 6.5 MongoDB Aggregation: Top Review Tags Analysis
 ✔ 7.1 Auth: Password hashing and verification with bcrypt
 ✔ 7.2 Auth: JWT Token signing, verification, and role payload
+✔ 7.3 RBAC: requireAuth enforces role-based access control
+✔ 7.4 Materialized View: sp_refresh_skill_demand_mv procedure executes concurrently without error
 ```
 
 ---
@@ -194,11 +216,11 @@ InternTrack includes an automated test harness in [`tests/interntrack.test.js`](
 When a student accepts an offer, InternTrack prevents race conditions using **pessimistic row-level locking**:
 ```sql
 -- Lock target posting row to serialize concurrent applicants
-SELECT filled_openings, total_openings FROM internship_posting WHERE posting_id = v_posting_id FOR UPDATE;
+SELECT * FROM internship_posting WHERE posting_id = v_posting_id FOR UPDATE;
 
--- Update status and mark student placed
-UPDATE offer SET status = 'accepted' WHERE offer_id = p_offer_id;
-UPDATE student SET is_placed = TRUE WHERE student_id = p_student_id;
+-- Update status and mark application accepted
+UPDATE offer SET status = 'accepted', responded_at = CURRENT_TIMESTAMP WHERE offer_id = p_offer_id;
+UPDATE application SET current_stage = 'Accepted', updated_at = CURRENT_TIMESTAMP WHERE application_id = v_app_id;
 
 -- University Cascade Policy: Auto-withdraw all competing active applications
 UPDATE application SET current_stage = 'Withdrawn'
@@ -211,21 +233,27 @@ PostgreSQL performs native nearest-neighbor retrieval using an **HNSW index** wi
 ```sql
 SELECT 
   p.posting_id, p.title, c.name,
-  ROUND(((1 - (p.embedding <=> s.profile_embedding)) * 100)::NUMERIC, 2) AS semantic_match_score
+  -- Combined Hybrid Recommendation Score (60% Skill Match + 40% Vector Cosine Similarity)
+  ROUND(
+    ((0.6 * fn_match_score(s.student_id, p.posting_id)) + 
+    (0.4 * ((1 - (p.embedding <=> s.profile_embedding)) * 100)))::NUMERIC,
+    2
+  ) AS hybrid_score
 FROM internship_posting p
 JOIN company c ON p.company_id = c.company_id
 CROSS JOIN student s
-WHERE s.student_id = $1 AND p.status = 'Active' AND s.cgpa >= p.min_cgpa
-ORDER BY p.embedding <=> s.profile_embedding ASC
+WHERE s.student_id = $1 AND p.status = 'open' AND s.cgpa >= p.min_cgpa
+ORDER BY hybrid_score DESC
 LIMIT 10;
 ```
+> **Note on Vector Embeddings:** The system utilizes a deterministic dense semantic projection in `lib/embeddings.js` that clusters technical keywords across domain centroids (Systems, Web, AI/ML, Mobile) onto a 384-dimensional unit hypersphere with SHA-256 dispersion for out-of-vocabulary terms. It requires zero external neural model downloads and generates ranking scores for retrieval rather than calibrated empirical probabilities.
 
 ### 3. Five Production MongoDB Aggregation Pipelines
-- **Company Sentiment:** `$group` on ratings across 4 dimensions (overall, WLB, learning curve, stipend).
-- **Skills Intelligence:** `$unwind: '$skills'` to compute university-wide competency frequency.
-- **Dynamic Rubrics:** `$objectToArray` to unpack and average variable role criteria (e.g. `System Design`, `Coding`).
-- **Telemetry Heatmap:** `$hour: '$timestamp'` grouping user traffic for institutional capacity planning.
-- **Corporate Culture Tags:** `$sortByCount: '$tags'` surfacing top student sentiment badges.
+- **Company Sentiment (`getCompanyRatingAverages`):** `$group` on ratings across 4 dimensions (mentorship, learning, work-life, compensation).
+- **Skills Intelligence (`getResumeSkillsFrequency`):** `$unwind: '$extracted_skills'` computing university-wide competency frequency.
+- **Dynamic Rubrics (`getInterviewFeedbackAverages`):** `$objectToArray` to unpack and average variable role criteria (e.g. `System Design`, `Coding`).
+- **Telemetry Heatmap (`getActivityHeatmap`):** `$dayOfWeek` and `$hour` grouping user traffic for institutional capacity planning.
+- **Corporate Culture Tags (`getTopReviewTags`):** `$unwind: '$tags'` and `$group` surfacing top student sentiment badges.
 
 ---
 
@@ -257,7 +285,7 @@ Every aspect of this project is documented in the [`docs/`](./docs) folder:
 ```
 ├── app/                              # Next.js 14 App Router
 │   ├── admin/                        # Placement Cell Admin Console
-│   ├── api/                          # 26 Dynamic REST API Route Handlers
+│   ├── api/                          # 30 Dynamic REST API Route Handlers (55 total routes)
 │   ├── recruiter/                    # Recruiter Management Portal
 │   ├── student/                      # Student Self-Service Portal
 │   ├── globals.css                   # Custom Dark Glassmorphism Styling
@@ -274,8 +302,9 @@ Every aspect of this project is documented in the [`docs/`](./docs) folder:
 ├── scripts/                          # DevOps Automation
 │   ├── migrate.js                    # Sequential SQL Migration Runner
 │   └── seed.js                       # Polyglot Seeder (Postgres + Mongo + Vectors)
-├── tests/                            # Automated Verification
-│   └── interntrack.test.js           # 16 Unit & Concurrency Automated Tests
+├── tests/                            # Automated Verification (40/40 Passing)
+│   ├── http_routes.test.js           # 13 Live HTTP Endpoint & Tenant Isolation Tests
+│   └── interntrack.test.js           # 27 Database Constraint, Concurrency & Aggregation Tests
 ├── docker-compose.yml                # Multi-Container PostgreSQL + MongoDB Stack
 ├── DEMO_GUIDE.md                     # Evaluator Walkthrough Guide
 ├── VIVA_GUIDE.md                     # Technical Viva Preparation

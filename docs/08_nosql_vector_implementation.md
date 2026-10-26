@@ -187,7 +187,7 @@ async function getReviewTagsCloud() {
 ## 3. High-Dimensional pgvector Semantic Retrieval
 
 ### 3.1 384-Dimensional Dense Vector Formulation
-InternTrack generates normalized 384-dimensional dense vectors mapping to the `sentence-transformers/all-MiniLM-L6-v2` embedding space. Profiles and job descriptions are converted into continuous vectors capturing semantic concepts:
+InternTrack generates normalized 384-dimensional dense vectors using a deterministic domain keyword projection in `lib/embeddings.js`. Profiles and job descriptions are converted into continuous vectors capturing semantic concepts across technical clusters (Backend/Systems, Frontend/Web, AI/ML, Mobile/Hardware) with SHA-256 dispersion for out-of-vocabulary terms and $L_2$ Euclidean normalization ($\| \mathbf{v} \|_2 = 1.0$):
 - "Distributed systems, Raft consensus, Go" $\approx$ "Backend infrastructure, microservices, gRPC"
 
 ### 3.2 Hierarchical Navigable Small World (HNSW) Indexing
@@ -213,7 +213,7 @@ WITH (m = 16, ef_construction = 64);
 ### 3.3 Hybrid Recommendation SQL Query
 InternTrack pairs vector distance with relational pre-filtering and domain skill matching:
 
-$$\text{Final Match Score} = \left(0.70 \times \text{Cosine Sim} + 0.30 \times \text{Skill Match}\right) \times 100$$
+$$\text{Hybrid Score} = 0.60 \times \text{fn\_match\_score}(\text{student}, \text{posting}) + 0.40 \times \left( (1 - (\mathbf{p} \Leftrightarrow \mathbf{s})) \times 100 \right)$$
 
 ```sql
 SELECT 
@@ -221,21 +221,26 @@ SELECT
   p.title,
   c.name AS company_name,
   p.location,
-  p.stipend,
   p.min_cgpa,
   p.deadline,
-  ROUND(((1 - (p.embedding <=> s.profile_embedding)) * 100)::NUMERIC, 2) AS semantic_match_score
+  ROUND((1 - (p.embedding <=> s.profile_embedding))::NUMERIC, 4) AS semantic_similarity,
+  fn_match_score(s.student_id, p.posting_id) AS skill_score,
+  ROUND(
+    ((0.6 * fn_match_score(s.student_id, p.posting_id)) + 
+    (0.4 * ((1 - (p.embedding <=> s.profile_embedding)) * 100)))::NUMERIC,
+    2
+  ) AS hybrid_score
 FROM internship_posting p
 JOIN company c ON p.company_id = c.company_id
 CROSS JOIN student s
 WHERE s.student_id = $1
-  AND p.status = 'Active'
+  AND p.status = 'open'
   AND p.deadline >= CURRENT_TIMESTAMP
   AND s.cgpa >= p.min_cgpa
   AND EXISTS (
     SELECT 1 FROM posting_eligible_dept ped
     WHERE ped.posting_id = p.posting_id AND ped.dept_id = s.dept_id
   )
-ORDER BY p.embedding <=> s.profile_embedding ASC
+ORDER BY hybrid_score DESC
 LIMIT 10;
 ```

@@ -6,9 +6,11 @@ export default function AdminAnalyticsPage() {
   const [deptStats, setDeptStats] = useState([]);
   const [skillGap, setSkillGap] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [refreshMessage, setRefreshMessage] = useState('');
 
-  useEffect(() => {
-    Promise.all([
+  const loadData = () => {
+    return Promise.all([
       fetch('/api/admin/analytics/department').then((r) => r.json()),
       fetch('/api/admin/analytics/skill-demand').then((r) => r.json()),
     ])
@@ -21,7 +23,30 @@ export default function AdminAnalyticsPage() {
         console.error(err);
         setLoading(false);
       });
+  };
+
+  useEffect(() => {
+    loadData();
   }, []);
+
+  const handleRefreshMv = async () => {
+    setRefreshing(true);
+    setRefreshMessage('');
+    try {
+      const res = await fetch('/api/admin/analytics/skill-demand', { method: 'POST' });
+      const d = await res.json();
+      if (res.ok) {
+        setRefreshMessage(`✓ Refreshed in ${d.durationMs}ms at ${new Date(d.refreshedAt).toLocaleTimeString()}`);
+        await loadData();
+      } else {
+        setRefreshMessage(`Failed: ${d.error}`);
+      }
+    } catch (e) {
+      setRefreshMessage(`Error: ${e.message}`);
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   if (loading) {
     return <div style={{ color: 'var(--text-secondary)' }}>Loading institutional analytics...</div>;
@@ -108,6 +133,21 @@ export default function AdminAnalyticsPage() {
             <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
               Compares corporate role demands (<code style={{ color: '#818cf8' }}>mv_skill_demand</code> in PostgreSQL) with candidate competencies (<code style={{ color: '#10b981' }}>resumes</code> aggregation in MongoDB)
             </p>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            {refreshMessage && (
+              <span style={{ fontSize: '0.82rem', color: refreshMessage.startsWith('✓') ? '#34d399' : '#f87171' }}>
+                {refreshMessage}
+              </span>
+            )}
+            <button
+              onClick={handleRefreshMv}
+              disabled={refreshing}
+              className="btn btn-secondary"
+              style={{ fontSize: '0.82rem', padding: '6px 14px' }}
+            >
+              {refreshing ? 'Refreshing MV...' : '⚡ Refresh Materialized View'}
+            </button>
           </div>
         </div>
 

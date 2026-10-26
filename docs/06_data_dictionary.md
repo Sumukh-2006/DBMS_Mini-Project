@@ -33,11 +33,13 @@
 | `usn` | VARCHAR(20) | NO | UK | None | University Seat Number (e.g., 'PES1UG22CS001'). |
 | `full_name` | VARCHAR(100) | NO | - | None | Legal full name of student. |
 | `dept_id` | INT | NO | FK | None | References `department(dept_id) ON DELETE RESTRICT`. |
+| `year` | INT | NO | - | None | CHECK (`year BETWEEN 1 AND 5`). Current academic year. |
 | `cgpa` | NUMERIC(4,2) | NO | - | None | CHECK (`cgpa >= 0.00 AND cgpa <= 10.00`). Cumulative GPA. |
-| `grad_year` | INT | NO | - | None | CHECK (`grad_year >= 2020`). Graduation batch. |
-| `phone` | VARCHAR(20) | YES | - | NULL | Contact telephone number. |
+| `grad_year` | INT | NO | - | None | CHECK (`grad_year >= 2024`). Graduation batch year. |
+| `phone` | VARCHAR(15) | YES | - | NULL | Contact telephone number. |
+| `bio` | TEXT | YES | - | NULL | Professional biography summary. |
+| `resume_url` | VARCHAR(255) | YES | - | NULL | Optional external resume link. |
 | `profile_embedding` | vector(384) | YES | - | NULL | 384-dimensional dense semantic embedding vector. |
-| `is_placed` | BOOLEAN | NO | - | FALSE | Flag indicating confirmed offer acceptance. |
 
 ### 1.4 `skill`
 | Column | Type | Nullable | Key | Default | Description / Constraints |

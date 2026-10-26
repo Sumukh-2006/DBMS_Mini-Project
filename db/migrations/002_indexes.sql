@@ -62,3 +62,9 @@ CREATE INDEX IF NOT EXISTS idx_posting_recruiter ON internship_posting (recruite
 CREATE INDEX IF NOT EXISTS idx_app_stage_hist_app ON application_stage_history (application_id);
 CREATE INDEX IF NOT EXISTS idx_interview_app ON interview (application_id);
 CREATE INDEX IF NOT EXISTS idx_offer_app ON offer (application_id);
+
+-- 12. University Placement Policy Invariant: Single Accepted Application per Student
+-- Guarantees at the database constraint level that no student can have multiple accepted offers
+CREATE UNIQUE INDEX IF NOT EXISTS uq_student_single_accepted_application
+ON application (student_id)
+WHERE current_stage = 'Accepted';

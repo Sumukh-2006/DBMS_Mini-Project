@@ -38,14 +38,14 @@
 - When an offer is accepted, multiple applicants might be attempting to accept the last remaining opening for a popular company simultaneously.
 - To prevent a race condition, `sp_accept_offer` initiates a transaction and issues:
   ```sql
-  SELECT filled_openings, total_openings 
+  SELECT openings, filled 
   FROM internship_posting 
   WHERE posting_id = v_posting_id 
   FOR UPDATE;
   ```
 - **Pessimistic Locking Mechanism:** `SELECT ... FOR UPDATE` places an exclusive write lock on that specific row. Any competing transaction trying to inspect or accept that posting is forced to pause at the database engine level until the current transaction commits or rolls back.
-- If `filled_openings >= total_openings`, the procedure immediately raises a `Contention Exception`, ensuring the quota is never breached.
-- In the same atomic boundary, it updates `student.is_placed = TRUE` and auto-withdraws all other active applications.
+- If `filled >= openings`, the procedure immediately raises an exception (`Concurrency conflict: All openings were filled`), ensuring the quota is never breached.
+- In the same atomic boundary, it updates `application.current_stage = 'Accepted'`, `offer.status = 'accepted'` (with One-Student-One-Offer guaranteed by partial unique index `uq_student_single_accepted_application`) and auto-withdraws all other active applications.
 
 ---
 
@@ -148,9 +148,8 @@
 ## Question 10: How does InternTrack combine keyword matching and vector similarity for hybrid scoring?
 
 **Answer:**
-- Pure keyword search fails on semantic synonyms, while pure vector search may overlook critical hard requirements.
 - InternTrack implements a **hybrid ranking formula**:
-  $$\text{Score} = \left(0.70 \times \text{Vector Similarity} + 0.30 \times \text{Domain Skill Overlap}\right) \times 100$$
-- Before ranking, SQL declarative pre-filters guarantee that only eligible candidates are scored:
-  `WHERE s.cgpa >= p.min_cgpa AND p.status = 'Active' AND p.deadline >= NOW() AND dept_id IN (eligible_departments)`.
+  $$\text{Score} = 0.60 \times \text{fn\_match\_score}(\text{student}, \text{posting}) + 0.40 \times \left( (1 - (\mathbf{p} \Leftrightarrow \mathbf{s})) \times 100 \right)$$
+- The calculation allocates 60% weight to explicit domain skill overlap (`fn_match_score`) and 40% to vector cosine similarity (`<=>`), pre-filtered by CGPA cutoff and department eligibility:
+  `WHERE s.cgpa >= p.min_cgpa AND p.status = 'open' AND p.deadline >= CURRENT_TIMESTAMP AND dept_id IN (eligible_departments)`.
 - This ensures that high semantic similarity can never bypass core academic eligibility rules.

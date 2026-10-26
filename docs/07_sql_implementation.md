@@ -148,16 +148,21 @@ DECLARE
   v_cgpa NUMERIC(4,2);
   v_min_cgpa NUMERIC(4,2);
   v_dept_id INT;
-  v_is_eligible_dept BOOLEAN;
-  v_is_placed BOOLEAN;
+  v_has_accepted_offer BOOLEAN;
   v_match_score NUMERIC(5,2);
 BEGIN
-  -- Verify student status
-  SELECT cgpa, dept_id, is_placed INTO v_cgpa, v_dept_id, v_is_placed
+  -- Verify student status and existing placements
+  SELECT cgpa, dept_id INTO v_cgpa, v_dept_id
   FROM student WHERE student_id = p_student_id;
 
-  IF v_is_placed THEN
-    RAISE EXCEPTION 'Ineligible: Student has already accepted an offer and is marked as placed.';
+  SELECT EXISTS (
+    SELECT 1 FROM offer o
+    JOIN application a ON o.application_id = a.application_id
+    WHERE a.student_id = p_student_id AND o.status = 'accepted'
+  ) INTO v_has_accepted_offer;
+
+  IF v_has_accepted_offer THEN
+    RAISE EXCEPTION 'Placement Policy: You already have an accepted internship offer and cannot submit new applications.';
   END IF;
 
   -- Check posting minimum CGPA
@@ -251,10 +256,7 @@ BEGIN
   SET current_stage = 'Accepted', updated_at = CURRENT_TIMESTAMP
   WHERE application_id = v_app_id;
 
-  -- 4. Mark student as placed
-  UPDATE student
-  SET is_placed = TRUE
-  WHERE student_id = p_student_id;
+  -- 4. Guaranteed single placement invariant enforced by uq_student_single_accepted_application
 
   -- 5. University Placement Cascade Policy: Auto-withdraw all other active applications
   WITH withdrawn_apps AS (

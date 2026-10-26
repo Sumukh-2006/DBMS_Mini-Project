@@ -15,9 +15,24 @@ export async function POST(request) {
     }
 
     let recruiterId = panelistRecruiterId;
-    if (!recruiterId && user.role === 'recruiter') {
-      const rec = await query('SELECT recruiter_id FROM recruiter WHERE user_id = $1', [user.userId]);
-      recruiterId = rec.rows[0].recruiter_id;
+    if (user.role === 'recruiter') {
+      const rec = await query('SELECT recruiter_id, company_id FROM recruiter WHERE user_id = $1', [user.userId]);
+      if (rec.rows.length === 0) {
+        return NextResponse.json({ error: 'Recruiter profile not found' }, { status: 404 });
+      }
+      if (!recruiterId) {
+        recruiterId = rec.rows[0].recruiter_id;
+      }
+      const appOwner = await query(
+        `SELECT p.company_id FROM application a JOIN internship_posting p ON a.posting_id = p.posting_id WHERE a.application_id = $1`,
+        [parseInt(applicationId)]
+      );
+      if (appOwner.rows.length === 0 || appOwner.rows[0].company_id !== rec.rows[0].company_id) {
+        return NextResponse.json(
+          { error: 'Forbidden: You cannot schedule interviews for another company\'s candidates.' },
+          { status: 403 }
+        );
+      }
     }
 
     let interviewId;

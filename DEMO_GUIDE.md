@@ -28,9 +28,9 @@ npm run dev
 ## 2. One-Click Evaluator Demo Switcher
 
 On the landing page (`http://localhost:3000`), three instant demo login buttons are provided for zero-friction evaluation:
-- 🔵 **Launch Student Portal** (`aditi@pesu.pes.edu` / `password123`)
-- 🟢 **Launch Recruiter Portal** (`vikram@google.com` / `password123`)
-- 🟡 **Launch Placement Cell Admin** (`admin@pesu.pes.edu` / `adminpassword`)
+- 🔵 **Launch Student Portal** (`sumukh.student@pes.edu` / `password123`)
+- 🟢 **Launch Recruiter Portal** (`sarah.recruiter@google.com` / `password123`)
+- 🟡 **Launch Placement Cell Admin** (`admin@pes.edu` / `password123`)
 
 ---
 
@@ -48,11 +48,11 @@ On the landing page (`http://localhost:3000`), three instant demo login buttons 
 ---
 
 ### Step 2: Semantic AI Recommendations & pgvector Search (Rubric: Vector DB)
-1. Log in as **Student** (`aditi@pesu.pes.edu`).
+1. Log in as **Student** (`sumukh.student@pes.edu`).
 2. Navigate to **AI Matches** (`/student/recommendations`).
 3. **Show the Evaluator:**
    - Top-ranked postings with a calculated percentage (e.g. `91.85% Match`).
-   - Click on the posting details to show that the ranking combines Cosine Similarity (`<=>`) with domain skill overlap and CGPA cutoff pre-filtering.
+   - Click on the posting details to show that the ranking combines 60% domain skill overlap (`fn_match_score`) with 40% vector Cosine Similarity (`<=>`) and CGPA cutoff pre-filtering.
 4. Terminal verification of HNSW Index in PostgreSQL:
    ```bash
    docker exec -it interntrack_postgres psql -U postgres -d interntrack_db -c "\d internship_posting"
@@ -74,7 +74,7 @@ On the landing page (`http://localhost:3000`), three instant demo login buttons 
 ---
 
 ### Step 4: Recruiter Funnel, Candidate Progression, & Similar Candidates
-1. Log out or open a private window, then click **Launch Recruiter Portal** (`vikram@google.com`).
+1. Log out or open a private window, then click **Launch Recruiter Portal** (`sarah.recruiter@google.com`).
 2. Navigate to **Applicant Funnel** (`/recruiter/applicants`).
 3. **Show the Evaluator:**
    - Real-time applicant cards showing USN, department, CGPA, and Match Score.
@@ -96,14 +96,15 @@ On the landing page (`http://localhost:3000`), three instant demo login buttons 
 ### Step 6: Atomic Offer Acceptance & University Cascading Policy (`sp_accept_offer`)
 1. In the Recruiter Portal, navigate to **Issue Offers** (`/recruiter/offers`).
 2. Issue an offer of ₹1,10,000/month to the shortlisted student.
-3. Switch back to **Student Portal** (`aditi@pesu.pes.edu`) and navigate to **My Offers** (`/student/offers`).
+3. Switch back to **Student Portal** (`sumukh.student@pes.edu`) and navigate to **My Offers** (`/student/offers`).
 4. **Show the Evaluator:**
    - Active offer card displaying company, monthly stipend, and expiry date.
    - Note the student has multiple applications in progress across other companies.
 5. Click **Accept Offer & Confirm Placement**.
 6. **Show the Evaluator the Real-Time Cascade:**
-   - Student's status updates to `Placed`.
-   - The accepted application moves to `Accepted`.
+   - The accepted application moves to `Accepted` stage.
+   - The accepted offer status moves to `accepted`.
+   - Engine-level partial unique index `uq_student_single_accepted_application` guarantees only one accepted offer per student.
    - **Crucial Rule:** All other active applications across competing companies are atomically updated to `Withdrawn` by `sp_accept_offer` using `SELECT ... FOR UPDATE` row locks!
 
 ---
@@ -125,13 +126,13 @@ On the landing page (`http://localhost:3000`), three instant demo login buttons 
 ---
 
 ### Step 8: Placement Cell Governance, Materialized View, & Audit Immutability
-1. Log in as **Placement Cell Admin** (`admin@pesu.pes.edu`).
+1. Log in as **Placement Cell Admin** (`admin@pes.edu`).
 2. Navigate to **Governance Overview** (`/admin`).
 3. Show **Placement Policies** (`/admin/policies`) with dynamic policy overrides.
 4. Show **Institutional Analytics** (`/admin/analytics`):
    - Department placement rates and average stipends (`v_department_placement`).
    - Materialized View `mv_skill_demand`: Market Demand vs Student Supply Gap.
-   - Click **Refresh Materialized View** to execute `sp_refresh_skill_demand_mv()`.
+   - Click **⚡ Refresh Materialized View** to execute `sp_refresh_skill_demand_mv()`.
 5. Show **Audit Log Inspector** (`/admin/audit-logs`):
    - All actions recorded with user, action, and JSON timestamps.
    - Explain trigger `trg_history_immutable`: Attempting to delete an audit log row raises an immediate exception.
@@ -141,8 +142,8 @@ On the landing page (`http://localhost:3000`), three instant demo login buttons 
 ---
 
 ### Step 9: Automated Test Suite Execution (Rubric: Verification)
-In the terminal, run the complete 16-test suite:
+In the terminal, run the complete 40-test suite:
 ```bash
 npm test
 ```
-**Show the Evaluator:** All 16 automated tests pass with 0 failures in under 500ms.
+**Show the Evaluator:** All 40 automated tests (27 DB/unit + 13 HTTP integration) pass with 0 failures in ~1s.

@@ -61,7 +61,6 @@ erDiagram
         decimal cgpa
         int grad_year
         vector profile_embedding "384-d dense vector"
-        boolean is_placed
     }
 
     RECRUITER {

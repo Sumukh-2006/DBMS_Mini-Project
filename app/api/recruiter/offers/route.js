@@ -14,6 +14,22 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Application ID, stipend, and start date are required' }, { status: 400 });
     }
 
+    // Authorization: Verify recruiter belongs to the company owning the posting
+    if (user.role === 'recruiter') {
+      const recRes = await query('SELECT company_id FROM recruiter WHERE user_id = $1', [user.userId]);
+      const userCompanyId = recRes.rows[0]?.company_id;
+      const appOwner = await query(
+        `SELECT p.company_id FROM application a JOIN internship_posting p ON a.posting_id = p.posting_id WHERE a.application_id = $1`,
+        [parseInt(applicationId)]
+      );
+      if (appOwner.rows.length === 0 || appOwner.rows[0].company_id !== userCompanyId) {
+        return NextResponse.json(
+          { error: 'Forbidden: You cannot issue offers for candidates applied to another company.' },
+          { status: 403 }
+        );
+      }
+    }
+
     // Call stored procedure sp_issue_offer
     await query(
       `CALL sp_issue_offer($1, $2, $3, $4, $5, NULL);`,

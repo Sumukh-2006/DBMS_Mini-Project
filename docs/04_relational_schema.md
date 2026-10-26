@@ -15,9 +15,10 @@ Under standard relational database notation, primary keys are marked with **unde
 2. **`department`** (<u>`dept_id`</u>, `code`, `name`)  
    *Candidate Keys:* `{dept_id}`, `{code}`
 
-3. **`student`** (<u>`student_id`</u>, `user_id`*, `usn`, `full_name`, `dept_id`*, `cgpa`, `grad_year`, `phone`, `profile_embedding`, `is_placed`)  
+3. **`student`** (<u>`student_id`</u>, `user_id`*, `usn`, `full_name`, `dept_id`*, `year`, `cgpa`, `grad_year`, `phone`, `bio`, `profile_embedding`)  
    *Candidate Keys:* `{student_id}`, `{usn}`, `{user_id}`  
-   *Foreign Keys:* `user_id ➔ app_user(user_id)`, `dept_id ➔ department(dept_id)`
+   *Foreign Keys:* `user_id ➔ app_user(user_id)`, `dept_id ➔ department(dept_id)`  
+   *Note on Placement Status:* Placement is normalized via `application.current_stage = 'Accepted'` and guarded by partial unique index `uq_student_single_accepted_application`.
 
 4. **`skill`** (<u>`skill_id`</u>, `name`, `category`)  
    *Candidate Keys:* `{skill_id}`, `{name}`
@@ -80,14 +81,14 @@ A relation $R$ is in **BCNF** if and only if for every non-trivial functional de
 ---
 
 ### Table 1: `student`
-- **Attributes:** `{student_id, user_id, usn, full_name, dept_id, cgpa, grad_year, phone, profile_embedding, is_placed}`
+- **Attributes:** `{student_id, user_id, usn, full_name, dept_id, year, cgpa, grad_year, phone, bio, profile_embedding}`
 - **Candidate Keys:** $K_1 = \{\text{student\_id}\}$, $K_2 = \{\text{usn}\}$, $K_3 = \{\text{user\_id}\}$
 - **Functional Dependencies:**
-  1. $\text{student\_id} \rightarrow \{\text{user\_id, usn, full\_name, dept\_id, cgpa, grad\_year, phone, profile\_embedding, is\_placed}\}$
-  2. $\text{usn} \rightarrow \{\text{student\_id, user\_id, full\_name, dept\_id, cgpa, grad\_year, phone, profile\_embedding, is\_placed}\}$
-  3. $\text{user\_id} \rightarrow \{\text{student\_id, usn, full\_name, dept\_id, cgpa, grad\_year, phone, profile\_embedding, is\_placed}\}$
+  1. $\text{student\_id} \rightarrow \{\text{user\_id, usn, full\_name, dept\_id, year, cgpa, grad\_year, phone, bio, profile\_embedding}\}$
+  2. $\text{usn} \rightarrow \{\text{student\_id, user\_id, full\_name, dept\_id, year, cgpa, grad\_year, phone, bio, profile\_embedding}\}$
+  3. $\text{user\_id} \rightarrow \{\text{student\_id, usn, full\_name, dept\_id, year, cgpa, grad\_year, phone, bio, profile\_embedding}\}$
 - **BCNF Analysis:** In all three FDs, the determinant is a candidate key / superkey. Therefore, `student` satisfies **BCNF**.
-- **Anomaly Elimination:** Separating `dept_id` into a distinct `department` table prevents the repetition of department names (e.g. "Computer Science and Engineering") for thousands of students, preventing update anomalies when department titles change.
+- **Anomaly Elimination:** Separating `dept_id` into a distinct `department` table prevents the repetition of department names. Normalizing placement state via `application.current_stage = 'Accepted'` rather than a denormalized `is_placed` flag eliminates transitive update anomalies.
 
 ---
 

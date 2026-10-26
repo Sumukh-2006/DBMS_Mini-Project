@@ -74,8 +74,8 @@ sequenceDiagram
     API->>Postgres: CALL sp_apply(p_student_id, p_posting_id, ...);
     
     activate Procedure
-    Procedure->>Postgres: Check student.is_placed
-    alt Student is already placed
+    Procedure->>Postgres: Check existing accepted offer in offer/application
+    alt Student has already accepted an offer
         Procedure-->>API: RAISE EXCEPTION 'Student has already accepted an offer'
     end
 
@@ -131,12 +131,12 @@ sequenceDiagram
 
     Procedure->>Postgres: UPDATE offer SET status = 'accepted'
     Procedure->>Postgres: UPDATE application SET current_stage = 'Accepted'
-    Procedure->>Postgres: UPDATE student SET is_placed = TRUE
+    Note over Procedure,Postgres: Engine enforces uq_student_single_accepted_application
     
     Note over Procedure,Postgres: University Cascade Policy:
     Procedure->>Postgres: UPDATE application SET current_stage = 'Withdrawn' WHERE student_id = S AND id != AppID
     
-    Procedure->>Postgres: UPDATE posting SET filled_openings = filled_openings + 1
+    Procedure->>Postgres: UPDATE internship_posting SET filled = filled + 1
     Procedure-->>API: p_success = TRUE, 'Auto-withdrew N other applications'
     deactivate Procedure
 

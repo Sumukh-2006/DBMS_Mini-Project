@@ -11,6 +11,17 @@ const { generateEmbedding, vectorToSql } = require('../lib/embeddings');
 async function seed() {
   console.log('--- Starting InternTrack Database Seeding ---');
 
+  // Safety Guard: Abort if running in production without explicit confirmation
+  const isProduction = process.env.NODE_ENV === 'production';
+  const allowDestructive = process.env.ALLOW_DESTRUCTIVE_SEED === 'true';
+
+  if (isProduction && !allowDestructive) {
+    console.error('CRITICAL SAFETY ABORT: scripts/seed.js was invoked in a PRODUCTION environment without ALLOW_DESTRUCTIVE_SEED=true.');
+    console.error('Seeding performs a destructive TRUNCATE across all 17 tables and deletes all MongoDB documents.');
+    console.error('To proceed, explicitly set ALLOW_DESTRUCTIVE_SEED=true.');
+    process.exit(1);
+  }
+
   // 1. Password hash for demo users
   const demoHash = await hashPassword('password123');
 

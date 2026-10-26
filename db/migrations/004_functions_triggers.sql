@@ -616,6 +616,10 @@ DECLARE
     v_app RECORD;
     v_user_id INT;
 BEGIN
+    -- 0. Lock the student row FOR UPDATE to establish global lock hierarchy (Student -> Offer -> App -> Posting)
+    -- and serialize offer acceptance operations per student, preventing deadlocks in cascading auto-withdrawals.
+    PERFORM 1 FROM student WHERE student_id = p_student_id FOR UPDATE;
+
     -- 1. Lock the offer row FOR UPDATE to prevent double-accept
     SELECT * INTO v_offer
     FROM offer

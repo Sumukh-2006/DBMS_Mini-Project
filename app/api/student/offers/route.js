@@ -67,7 +67,18 @@ export async function POST(request) {
         status: 'accepted',
       });
     } else {
-      // Decline offer
+      // Decline offer: Verify offer belongs to authenticated student
+      const offerCheck = await query(
+        `SELECT o.offer_id FROM offer o JOIN application a ON o.application_id = a.application_id WHERE o.offer_id = $1 AND a.student_id = $2`,
+        [offerId, studentId]
+      );
+      if (offerCheck.rows.length === 0) {
+        return NextResponse.json(
+          { error: 'Forbidden: Offer does not belong to you or does not exist.' },
+          { status: 403 }
+        );
+      }
+
       await query(
         `UPDATE offer SET status = 'declined', responded_at = CURRENT_TIMESTAMP WHERE offer_id = $1`,
         [offerId]

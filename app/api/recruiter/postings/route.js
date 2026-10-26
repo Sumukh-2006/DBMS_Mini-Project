@@ -86,10 +86,25 @@ export async function POST(request) {
     }
 
     const recRes = await query(
-      'SELECT recruiter_id, company_id FROM recruiter WHERE user_id = $1',
+      `SELECT r.recruiter_id, r.company_id, c.verified, c.name AS company_name
+       FROM recruiter r
+       JOIN company c ON r.company_id = c.company_id
+       WHERE r.user_id = $1`,
       [user.userId]
     );
-    const { recruiter_id: recruiterId, company_id: companyId } = recRes.rows[0];
+
+    if (recRes.rows.length === 0) {
+      return NextResponse.json({ error: 'Recruiter profile not found' }, { status: 404 });
+    }
+
+    const { recruiter_id: recruiterId, company_id: companyId, verified, company_name } = recRes.rows[0];
+
+    if (!verified) {
+      return NextResponse.json(
+        { error: `Forbidden: Company '${company_name}' is currently unverified. Postings can only be published after verification approval by the placement cell.` },
+        { status: 403 }
+      );
+    }
 
     // Generate 384-dimensional dense semantic embedding for pgvector
     const skillText = Array.isArray(skills) ? skills.map(s => s.name || s).join(' ') : '';

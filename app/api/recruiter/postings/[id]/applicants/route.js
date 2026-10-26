@@ -25,6 +25,17 @@ export async function GET(request, { params }) {
 
     const posting = postRes.rows[0];
 
+    // Authorization: Recruiters may only view applicants for their own company
+    if (user.role === 'recruiter') {
+      const recRes = await query('SELECT company_id FROM recruiter WHERE user_id = $1', [user.userId]);
+      if (recRes.rows.length === 0 || recRes.rows[0].company_id !== posting.company_id) {
+        return NextResponse.json(
+          { error: 'Forbidden: You do not have permission to access applicants belonging to another company.' },
+          { status: 403 }
+        );
+      }
+    }
+
     let conditions = ['a.posting_id = $1'];
     let queryParams = [postingId];
 

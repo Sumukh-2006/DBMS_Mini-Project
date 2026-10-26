@@ -51,3 +51,28 @@ export async function GET(request) {
     return NextResponse.json({ error: err.message }, { status: err.status || 500 });
   }
 }
+
+export async function POST(request) {
+  try {
+    const user = requireAuth(request, ['admin']);
+
+    const start = Date.now();
+    await query('SELECT sp_refresh_skill_demand_mv();');
+    const duration = Date.now() - start;
+
+    await query(
+      `INSERT INTO audit_log (action, entity, entity_id, actor_id, details)
+       VALUES ('MATERIALIZED_VIEW_REFRESHED', 'mv_skill_demand', NULL, $1, $2)`,
+      [user.userId, JSON.stringify({ durationMs: duration, timestamp: new Date() })]
+    );
+
+    return NextResponse.json({
+      message: 'Materialized view mv_skill_demand refreshed concurrently in PostgreSQL.',
+      durationMs: duration,
+      refreshedAt: new Date(),
+    });
+  } catch (err) {
+    console.error('Refresh materialized view error:', err);
+    return NextResponse.json({ error: err.message }, { status: err.status || 500 });
+  }
+}

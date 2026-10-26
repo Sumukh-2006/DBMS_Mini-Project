@@ -92,7 +92,7 @@
   - Result: Successfully created `offer` row and advanced `application.current_stage` to `'Offered'`.
 - **Test 3.4 (`sp_accept_offer` University Cascade Policy):**
   - Candidate with multiple active applications accepted an offer.
-  - Result: Successfully marked candidate as `is_placed = TRUE`, updated offer to `'accepted'`, incremented `filled_openings`, and automatically cascaded all other active applications to `'Withdrawn'`.
+  - Result: Successfully transitioned application to `'Accepted'`, updated offer to `'accepted'`, incremented `filled`, and automatically cascaded all other active applications to `'Withdrawn'`, with single placement invariant enforced by partial unique index `uq_student_single_accepted_application`.
 
 ---
 
