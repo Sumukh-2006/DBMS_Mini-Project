@@ -17,22 +17,30 @@ async function runDemo() {
     // ------------------------------------------------------------------------
     console.log('\n[DEMO 1] TRIGGER: trg_stage_history_immutable (Guarantees Append-Only Audit History)');
     console.log('-'.repeat(80));
-    console.log('BEFORE: Reading stage history record history_id = 1...');
-    const histBefore = await client.query('SELECT history_id, application_id, to_stage, reason FROM application_stage_history LIMIT 1;');
-    console.log('  State Before:', histBefore.rows[0]);
+    // Ensure a baseline history record exists for the demo
+    let testHist = (await client.query('SELECT history_id, application_id, to_stage, reason FROM application_stage_history LIMIT 1;')).rows[0];
+    if (!testHist) {
+      const insRes = await client.query(
+        "INSERT INTO application_stage_history (application_id, from_stage, to_stage, changed_by, reason) VALUES (1, 'Applied', 'Shortlisted', 1, 'Baseline record for immutability test') RETURNING history_id, application_id, to_stage, reason;"
+      );
+      testHist = insRes.rows[0];
+    }
 
-    console.log('\nACTION: Fraudulent attempt to execute: UPDATE application_stage_history SET to_stage=\'Accepted\' WHERE history_id=1;');
+    console.log(`BEFORE: Reading stage history record history_id = ${testHist.history_id}...`);
+    console.log('  State Before:', testHist);
+
+    console.log(`\nACTION: Fraudulent attempt to execute: UPDATE application_stage_history SET to_stage='Accepted' WHERE history_id=${testHist.history_id};`);
     try {
-      await client.query("UPDATE application_stage_history SET to_stage = 'Accepted' WHERE history_id = 1;");
+      await client.query("UPDATE application_stage_history SET to_stage = 'Accepted' WHERE history_id = $1;", [testHist.history_id]);
       console.error('  FAIL: Update unexpectedly succeeded!');
     } catch (err) {
       console.log('  ✓ TRIGGER FIRED & BLOCKED! Exception caught:');
       console.log(`    "${err.message}"`);
     }
 
-    const histAfter = await client.query('SELECT history_id, application_id, to_stage, reason FROM application_stage_history LIMIT 1;');
+    const histAfter = (await client.query('SELECT history_id, application_id, to_stage, reason FROM application_stage_history WHERE history_id = $1;', [testHist.history_id])).rows[0];
     console.log('\nAFTER: Verifying record remains completely unchanged:');
-    console.log('  State After:', histAfter.rows[0]);
+    console.log('  State After:', histAfter);
 
     // ------------------------------------------------------------------------
     // TRIGGER 2: trg_block_late_apply

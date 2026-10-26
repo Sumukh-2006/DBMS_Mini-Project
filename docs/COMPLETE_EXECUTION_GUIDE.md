@@ -46,10 +46,11 @@ docker ps
 ```
 *Expected Output:* Two healthy containers: `interntrack_postgres` (ports `5432:5432`) and `interntrack_mongodb` (ports `27017:27017`).
 
-If stopped, start them:
+If stopped, start existing containers:
 ```bash
-docker compose up -d
+docker start interntrack_postgres interntrack_mongodb
 ```
+*(Or if creating from scratch: `docker compose up -d`)*
 
 ### Step 2.2: Apply Authoritative SQL Migrations
 Apply the complete schema evolution sequence:
@@ -551,3 +552,29 @@ Before stepping into the evaluation room:
 - [x] Consolidated `db/all_ddl.sql` and `db/all_dml.sql` ready to open.
 
 **YOU ARE 100% READY TO ACE YOUR DBMS VIVA.**
+
+---
+
+## 10. System Teardown & Clean Shutdown Commands
+
+When you finish your practice run or after your final viva presentation, use these commands to safely shut down all services and free up system ports:
+
+### 10.1: Stop Next.js Development Server (Port 3000)
+Press `Ctrl + C` in the terminal running `npm run dev`, or forcefully terminate the process:
+```bash
+lsof -ti :3000 | xargs kill -9
+```
+
+### 10.2: Stop Docker Database Containers (Data Preserved)
+To safely stop the PostgreSQL and MongoDB containers without losing your database state or seeds:
+```bash
+docker stop interntrack_postgres interntrack_mongodb
+```
+*(To wake them back up for your actual presentation: `docker start interntrack_postgres interntrack_mongodb`)*
+
+### 10.3: Full Docker Teardown (Optional)
+If you ever need to completely tear down the Docker network and persistent volumes:
+```bash
+docker compose down -v
+```
+
