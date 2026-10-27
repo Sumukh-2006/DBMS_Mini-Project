@@ -1,6 +1,18 @@
 'use client';
-// app/recruiter/interviews/page.js - Interview Scheduler & MongoDB Feedback Form
+
 import React, { useEffect, useState } from 'react';
+import PageHeader from '../../../components/PageHeader';
+import EmptyState from '../../../components/EmptyState';
+import StatusBadge from '../../../components/StatusBadge';
+import {
+  IconCalendarEvent,
+  IconPlus,
+  IconFileText,
+  IconCheck,
+  IconAlertCircle,
+  IconX,
+  IconVideo,
+} from '@tabler/icons-react';
 
 export default function RecruiterInterviewsPage() {
   const [candidates, setCandidates] = useState([]);
@@ -115,101 +127,134 @@ export default function RecruiterInterviewsPage() {
   };
 
   return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-        <div>
-          <h1 style={{ fontSize: '1.8rem', fontWeight: 800 }}>Interview Scheduling & Feedback</h1>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '4px' }}>
-            Multi-round scheduling with automatic clash detection and MongoDB structured evaluation rubrics
-          </p>
-        </div>
-
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <button onClick={() => setShowScheduleModal(true)} className="btn btn-primary" style={{ background: '#ec4899' }}>
-            + Schedule Round
-          </button>
-          <button onClick={() => setShowFeedbackModal(true)} className="btn btn-secondary">
-            📝 Submit Feedback
-          </button>
-        </div>
-      </div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
+      <PageHeader
+        eyebrow="Evaluation & Scheduling • Clash Detection & MongoDB Rubrics"
+        title="Interview Scheduling & Feedback"
+        subtitle="Multi-round scheduling with automatic clash detection and MongoDB structured evaluation rubrics"
+        actions={
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button
+              onClick={() => setShowScheduleModal(true)}
+              className="btn btn-primary"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+            >
+              <IconPlus size={16} /> Schedule Round
+            </button>
+            <button
+              onClick={() => setShowFeedbackModal(true)}
+              className="btn btn-secondary"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+            >
+              <IconFileText size={16} /> Submit Feedback
+            </button>
+          </div>
+        }
+      />
 
       {message && (
-        <div style={{
-          background: 'var(--success-bg)',
-          border: '1px solid var(--success)',
-          color: '#6ee7b7',
-          padding: '12px 18px',
-          borderRadius: 'var(--radius-md)',
-          marginBottom: '20px',
-          fontSize: '0.9rem'
-        }}>
-          {message}
+        <div
+          style={{
+            backgroundColor: '#ffffff',
+            border: '1px solid #bbf7d0',
+            borderLeft: '4px solid #16a34a',
+            padding: '14px 18px',
+            borderRadius: 'var(--radius-md)',
+            color: '#15803d',
+            fontSize: '0.88rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+          }}
+        >
+          <IconCheck size={18} />
+          <span>{message}</span>
         </div>
       )}
 
       {error && (
-        <div style={{
-          background: 'var(--danger-bg)',
-          border: '1px solid var(--danger)',
-          color: '#fca5a5',
-          padding: '12px 18px',
-          borderRadius: 'var(--radius-md)',
-          marginBottom: '20px',
-          fontSize: '0.9rem'
-        }}>
-          {error}
+        <div
+          style={{
+            backgroundColor: '#ffffff',
+            border: '1px solid #fecdd3',
+            borderLeft: '4px solid #e11d48',
+            padding: '14px 18px',
+            borderRadius: 'var(--radius-md)',
+            color: '#be123c',
+            fontSize: '0.88rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+          }}
+        >
+          <IconAlertCircle size={18} />
+          <span>{error}</span>
         </div>
       )}
 
       {/* Active Candidate Pipeline Table */}
       {loading ? (
-        <div style={{ color: 'var(--text-secondary)' }}>Loading candidate interview pipeline...</div>
+        <div style={{ height: '300px', background: 'var(--surface)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)' }} />
       ) : candidates.length === 0 ? (
-        <div className="glass-card" style={{ textAlign: 'center', padding: '40px' }}>
-          <div style={{ fontSize: '2.5rem', marginBottom: '8px' }}>📅</div>
-          <div style={{ fontWeight: 700, fontSize: '1.1rem' }}>No candidates available to schedule</div>
-        </div>
+        <EmptyState
+          icon={<IconCalendarEvent size={28} />}
+          title="No candidates in active pipeline"
+          description="Candidates who apply for your postings will appear here ready for interview scheduling."
+        />
       ) : (
-        <div className="data-table-container">
-          <table className="data-table">
+        <div className="table-container">
+          <table className="table">
             <thead>
               <tr>
                 <th>Candidate</th>
                 <th>Role Posting</th>
                 <th>CGPA & Dept</th>
-                <th>Stage</th>
+                <th>Current Stage</th>
                 <th>Match Score</th>
-                <th>Action</th>
+                <th style={{ textAlign: 'right' }}>Action</th>
               </tr>
             </thead>
             <tbody>
               {candidates.map((c) => (
                 <tr key={c.application_id}>
                   <td>
-                    <div style={{ fontWeight: 700, color: '#fff' }}>{c.full_name}</div>
-                    <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{c.usn}</div>
+                    <div style={{ fontWeight: 600, color: 'var(--ink)' }}>{c.full_name}</div>
+                    <div style={{ fontFamily: 'var(--font-mono), monospace', fontSize: '0.72rem', color: 'var(--ink-muted)' }}>
+                      {c.usn}
+                    </div>
                   </td>
                   <td>{c.posting_title}</td>
                   <td>
-                    <div>{c.dept_name}</div>
-                    <div style={{ fontSize: '0.8rem', color: '#34d399' }}>CGPA: {c.cgpa}</div>
+                    <div style={{ fontSize: '0.84rem' }}>{c.dept_name}</div>
+                    <div style={{ fontFamily: 'var(--font-mono), monospace', fontSize: '0.74rem', color: '#047857', fontWeight: 600 }}>
+                      CGPA: {c.cgpa}
+                    </div>
                   </td>
                   <td>
-                    <span className={`badge badge-${c.current_stage.toLowerCase()}`}>{c.current_stage}</span>
+                    <StatusBadge status={c.current_stage} />
                   </td>
                   <td>
-                    <strong style={{ color: '#818cf8' }}>{Math.round(c.match_score)}%</strong>
+                    <span
+                      style={{
+                        fontFamily: 'var(--font-mono), monospace',
+                        fontSize: '0.76rem',
+                        fontWeight: 700,
+                        color: 'var(--ink)',
+                      }}
+                    >
+                      {Math.round(c.match_score)}%
+                    </span>
                   </td>
-                  <td>
+                  <td style={{ textAlign: 'right' }}>
                     <button
                       onClick={() => {
                         setSelectedAppId(c.application_id.toString());
                         setShowScheduleModal(true);
                       }}
                       className="btn btn-secondary btn-sm"
+                      style={{ fontSize: '0.74rem' }}
                     >
-                      Schedule Interview →
+                      Schedule Round →
                     </button>
                   </td>
                 </tr>
@@ -222,17 +267,29 @@ export default function RecruiterInterviewsPage() {
       {/* Schedule Interview Modal */}
       {showScheduleModal && (
         <div className="modal-backdrop">
-          <div className="modal-content">
-            <h2 style={{ fontSize: '1.3rem', fontWeight: 800, marginBottom: '8px' }}>Schedule Technical Interview Round</h2>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '20px' }}>
-              Enforces database-level clash detection for student and interviewer slots.
+          <div className="modal-content" style={{ maxWidth: '540px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+              <h2 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0, color: 'var(--ink)' }}>
+                Schedule Interview Round
+              </h2>
+              <button
+                type="button"
+                onClick={() => setShowScheduleModal(false)}
+                style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--ink-muted)' }}
+              >
+                <IconX size={20} />
+              </button>
+            </div>
+            <p style={{ fontSize: '0.84rem', color: 'var(--ink-muted)', marginBottom: '20px' }}>
+              Enforces database-level clash detection for student and interviewer calendar slots.
             </p>
 
-            <form onSubmit={handleScheduleSubmit}>
-              <div className="form-group">
+            <form onSubmit={handleScheduleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div>
                 <label className="form-label">Candidate Application</label>
                 <select
                   className="form-select"
+                  style={{ width: '100%' }}
                   value={selectedAppId}
                   onChange={(e) => setSelectedAppId(e.target.value)}
                 >
@@ -244,26 +301,28 @@ export default function RecruiterInterviewsPage() {
                 </select>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
-                <div className="form-group">
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div>
                   <label className="form-label">Round Number</label>
                   <input
                     type="number"
                     min="1"
                     className="form-input"
+                    style={{ width: '100%' }}
                     value={roundNo}
                     onChange={(e) => setRoundNo(e.target.value)}
                     required
                   />
                 </div>
 
-                <div className="form-group">
+                <div>
                   <label className="form-label">Duration (Minutes)</label>
                   <input
                     type="number"
                     min="15"
                     step="15"
                     className="form-input"
+                    style={{ width: '100%' }}
                     value={durationMin}
                     onChange={(e) => setDurationMin(e.target.value)}
                     required
@@ -271,33 +330,35 @@ export default function RecruiterInterviewsPage() {
                 </div>
               </div>
 
-              <div className="form-group">
-                <label className="form-label">Scheduled Date & Time (UTC/Local)</label>
+              <div>
+                <label className="form-label">Scheduled Date & Time</label>
                 <input
                   type="datetime-local"
                   className="form-input"
+                  style={{ width: '100%' }}
                   value={scheduledAt}
                   onChange={(e) => setScheduledAt(e.target.value)}
                   required
                 />
               </div>
 
-              <div className="form-group">
+              <div>
                 <label className="form-label">Meeting URL or Campus Room</label>
                 <input
                   type="text"
                   className="form-input"
+                  style={{ width: '100%' }}
                   value={linkOrRoom}
                   onChange={(e) => setLinkOrRoom(e.target.value)}
                   required
                 />
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '24px' }}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '14px' }}>
                 <button type="button" onClick={() => setShowScheduleModal(false)} className="btn btn-secondary">
                   Cancel
                 </button>
-                <button type="submit" disabled={submitting} className="btn btn-primary" style={{ background: '#ec4899' }}>
+                <button type="submit" disabled={submitting} className="btn btn-primary">
                   {submitting ? 'Verifying Clashes...' : 'Confirm & Schedule'}
                 </button>
               </div>
@@ -309,18 +370,30 @@ export default function RecruiterInterviewsPage() {
       {/* Feedback Submission Modal */}
       {showFeedbackModal && (
         <div className="modal-backdrop">
-          <div className="modal-content">
-            <h2 style={{ fontSize: '1.3rem', fontWeight: 800, marginBottom: '8px' }}>Record Interview Feedback</h2>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '20px' }}>
+          <div className="modal-content" style={{ maxWidth: '540px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+              <h2 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0, color: 'var(--ink)' }}>
+                Record Interview Evaluation
+              </h2>
+              <button
+                type="button"
+                onClick={() => setShowFeedbackModal(false)}
+                style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--ink-muted)' }}
+              >
+                <IconX size={20} />
+              </button>
+            </div>
+            <p style={{ fontSize: '0.84rem', color: 'var(--ink-muted)', marginBottom: '20px' }}>
               Structured evaluation rubrics are saved directly in MongoDB document store.
             </p>
 
-            <form onSubmit={handleFeedbackSubmit}>
-              <div className="form-group">
+            <form onSubmit={handleFeedbackSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div>
                 <label className="form-label">Interview ID</label>
                 <input
                   type="number"
                   className="form-input"
+                  style={{ width: '100%' }}
                   value={feedbackInterviewId}
                   onChange={(e) => setFeedbackInterviewId(e.target.value)}
                   required
@@ -328,49 +401,53 @@ export default function RecruiterInterviewsPage() {
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                <div className="form-group">
+                <div>
                   <label className="form-label">DSA / Coding (1-5)</label>
                   <input
                     type="number"
                     min="1"
                     max="5"
                     className="form-input"
+                    style={{ width: '100%' }}
                     value={rubric.dsa}
                     onChange={(e) => setRubric({ ...rubric, dsa: parseFloat(e.target.value) })}
                     required
                   />
                 </div>
-                <div className="form-group">
+                <div>
                   <label className="form-label">System Architecture (1-5)</label>
                   <input
                     type="number"
                     min="1"
                     max="5"
                     className="form-input"
+                    style={{ width: '100%' }}
                     value={rubric.system_design}
                     onChange={(e) => setRubric({ ...rubric, system_design: parseFloat(e.target.value) })}
                     required
                   />
                 </div>
-                <div className="form-group">
+                <div>
                   <label className="form-label">Communication (1-5)</label>
                   <input
                     type="number"
                     min="1"
                     max="5"
                     className="form-input"
+                    style={{ width: '100%' }}
                     value={rubric.communication}
                     onChange={(e) => setRubric({ ...rubric, communication: parseFloat(e.target.value) })}
                     required
                   />
                 </div>
-                <div className="form-group">
+                <div>
                   <label className="form-label">Problem Solving (1-5)</label>
                   <input
                     type="number"
                     min="1"
                     max="5"
                     className="form-input"
+                    style={{ width: '100%' }}
                     value={rubric.problem_solving}
                     onChange={(e) => setRubric({ ...rubric, problem_solving: parseFloat(e.target.value) })}
                     required
@@ -378,10 +455,11 @@ export default function RecruiterInterviewsPage() {
                 </div>
               </div>
 
-              <div className="form-group">
+              <div>
                 <label className="form-label">Hiring Recommendation</label>
                 <select
                   className="form-select"
+                  style={{ width: '100%' }}
                   value={recommendation}
                   onChange={(e) => setRecommendation(e.target.value)}
                 >
@@ -392,10 +470,11 @@ export default function RecruiterInterviewsPage() {
                 </select>
               </div>
 
-              <div className="form-group">
+              <div>
                 <label className="form-label">Panel Comments & Evaluation Notes</label>
                 <textarea
                   className="form-textarea"
+                  style={{ width: '100%' }}
                   rows="3"
                   value={comments}
                   onChange={(e) => setComments(e.target.value)}
@@ -403,7 +482,7 @@ export default function RecruiterInterviewsPage() {
                 />
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '20px' }}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '14px' }}>
                 <button type="button" onClick={() => setShowFeedbackModal(false)} className="btn btn-secondary">
                   Cancel
                 </button>

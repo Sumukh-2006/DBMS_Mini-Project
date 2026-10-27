@@ -1,6 +1,13 @@
 'use client';
-// app/recruiter/analytics/page.js - Funnel Conversion Analytics from v_posting_funnel
+
 import React, { useEffect, useState } from 'react';
+import PageHeader from '../../../components/PageHeader';
+import EmptyState from '../../../components/EmptyState';
+import {
+  IconChartBar,
+  IconClock,
+  IconTrendingUp,
+} from '@tabler/icons-react';
 
 export default function RecruiterAnalyticsPage() {
   const [funnelData, setFunnelData] = useState([]);
@@ -20,23 +27,46 @@ export default function RecruiterAnalyticsPage() {
   }, []);
 
   return (
-    <div>
-      <div style={{ marginBottom: '24px' }}>
-        <h1 style={{ fontSize: '1.8rem', fontWeight: 800 }}>Recruitment Funnel Analytics</h1>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '4px' }}>
-          Conversion rate analysis and candidate drop-off metrics backed by PostgreSQL view v_posting_funnel
-        </p>
-      </div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
+      <PageHeader
+        eyebrow="Conversion Metrics • PostgreSQL View v_posting_funnel"
+        title="Recruitment Funnel Analytics"
+        subtitle="Conversion rate analysis and candidate drop-off metrics backed by PostgreSQL view v_posting_funnel"
+        action={
+          <div
+            style={{
+              fontFamily: 'var(--font-mono), monospace',
+              fontSize: '0.74rem',
+              color: 'var(--ink-muted)',
+              padding: '6px 14px',
+              borderRadius: '999px',
+              backgroundColor: 'var(--surface-subtle)',
+              border: '1px solid var(--border)',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+            }}
+          >
+            <IconTrendingUp size={14} color="#047857" />
+            <span>Real-time SQL View</span>
+          </div>
+        }
+      />
 
       {loading ? (
-        <div style={{ color: 'var(--text-secondary)' }}>Aggregating pipeline metrics...</div>
-      ) : funnelData.length === 0 ? (
-        <div className="glass-card" style={{ textAlign: 'center', padding: '40px' }}>
-          <div style={{ fontSize: '2.5rem', marginBottom: '8px' }}>📈</div>
-          <div style={{ fontWeight: 700, fontSize: '1.1rem' }}>No funnel data available</div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          {[1, 2].map((i) => (
+            <div key={i} style={{ height: '200px', background: 'var(--surface)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)' }} />
+          ))}
         </div>
+      ) : funnelData.length === 0 ? (
+        <EmptyState
+          icon={<IconChartBar size={28} />}
+          title="No funnel data available"
+          description="Create postings and receive candidate applications to generate conversion rate analytics."
+        />
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           {funnelData.map((f) => {
             const total = parseInt(f.total_applicants) || 1;
             const appliedPct = Math.round((parseInt(f.count_applied) / total) * 100);
@@ -45,82 +75,100 @@ export default function RecruiterAnalyticsPage() {
             const offerPct = Math.round((parseInt(f.count_offered) / total) * 100);
             const acceptPct = Math.round((parseInt(f.count_accepted) / total) * 100);
 
+            const stages = [
+              { label: 'Applied (Initial Submissions)', count: f.count_applied, pct: appliedPct, color: '#3b6b8f' },
+              { label: 'Shortlisted (Resume / Skill Matched)', count: f.count_shortlisted, pct: shortPct, color: '#6366f1' },
+              { label: 'Interview (Technical Rounds)', count: f.count_interview, pct: intPct, color: '#d97706' },
+              { label: 'Offered (Pending Acceptance)', count: f.count_offered, pct: offerPct, color: '#e11d48' },
+              { label: 'Accepted (Placement Finalized)', count: f.count_accepted, pct: acceptPct, color: '#047857' },
+            ];
+
             return (
-              <div key={f.posting_id} className="glass-card" style={{ padding: '28px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+              <div key={f.posting_id} className="card" style={{ padding: '28px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px', flexWrap: 'wrap', gap: '16px' }}>
                   <div>
-                    <h2 style={{ fontSize: '1.3rem', fontWeight: 700, color: '#fff' }}>{f.title}</h2>
-                    <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginTop: '4px' }}>
+                    <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--ink)', margin: 0 }}>
+                      {f.title}
+                    </h2>
+                    <div
+                      style={{
+                        fontFamily: 'var(--font-mono), monospace',
+                        fontSize: '0.74rem',
+                        color: 'var(--ink-muted)',
+                        marginTop: '4px',
+                      }}
+                    >
                       Openings: {f.filled} / {f.openings} Filled • Deadline: {new Date(f.deadline).toLocaleDateString()}
                     </div>
                   </div>
 
                   <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#34d399' }}>
+                    <div
+                      style={{
+                        fontFamily: 'var(--font-mono), monospace',
+                        fontSize: '1.8rem',
+                        fontWeight: 700,
+                        color: 'var(--ink)',
+                        lineHeight: 1,
+                      }}
+                    >
                       {f.conversion_rate_pct}%
                     </div>
-                    <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600 }}>
+                    <div
+                      style={{
+                        fontFamily: 'var(--font-mono), monospace',
+                        fontSize: '0.66rem',
+                        color: 'var(--ink-muted)',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.06em',
+                        fontWeight: 700,
+                        marginTop: '4px',
+                      }}
+                    >
                       Placement Conversion
                     </div>
                   </div>
                 </div>
 
                 {/* Visual Funnel Stack */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '20px' }}>
-                  {/* Applied Bar */}
-                  <div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', marginBottom: '4px' }}>
-                      <span>Applied (Initial Submissions)</span>
-                      <strong>{f.count_applied} candidates ({appliedPct}%)</strong>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginTop: '16px' }}>
+                  {stages.map((st, sidx) => (
+                    <div key={sidx}>
+                      <div
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          fontFamily: 'var(--font-mono), monospace',
+                          fontSize: '0.74rem',
+                          marginBottom: '4px',
+                        }}
+                      >
+                        <span style={{ color: 'var(--ink)' }}>{st.label}</span>
+                        <strong style={{ color: 'var(--ink)' }}>
+                          {st.count} candidate{st.count === 1 ? '' : 's'} ({st.pct}%)
+                        </strong>
+                      </div>
+                      <div
+                        style={{
+                          height: '8px',
+                          backgroundColor: 'var(--surface-subtle)',
+                          borderRadius: '999px',
+                          overflow: 'hidden',
+                          border: '1px solid var(--border)',
+                        }}
+                      >
+                        <div
+                          style={{
+                            height: '100%',
+                            width: `${Math.max(st.pct, 2)}%`,
+                            backgroundColor: st.color,
+                            borderRadius: '999px',
+                            transition: 'width 0.4s ease',
+                          }}
+                        />
+                      </div>
                     </div>
-                    <div style={{ height: '10px', background: 'rgba(255,255,255,0.06)', borderRadius: '6px', overflow: 'hidden' }}>
-                      <div style={{ height: '100%', width: `${Math.max(appliedPct, 3)}%`, background: '#60a5fa', borderRadius: '6px' }} />
-                    </div>
-                  </div>
-
-                  {/* Shortlisted Bar */}
-                  <div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', marginBottom: '4px' }}>
-                      <span>Shortlisted (Resume / Skill Matched)</span>
-                      <strong>{f.count_shortlisted} candidates ({shortPct}%)</strong>
-                    </div>
-                    <div style={{ height: '10px', background: 'rgba(255,255,255,0.06)', borderRadius: '6px', overflow: 'hidden' }}>
-                      <div style={{ height: '100%', width: `${Math.max(shortPct, 3)}%`, background: '#c084fc', borderRadius: '6px' }} />
-                    </div>
-                  </div>
-
-                  {/* Interview Bar */}
-                  <div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', marginBottom: '4px' }}>
-                      <span>Interview (Technical Rounds)</span>
-                      <strong>{f.count_interview} candidates ({intPct}%)</strong>
-                    </div>
-                    <div style={{ height: '10px', background: 'rgba(255,255,255,0.06)', borderRadius: '6px', overflow: 'hidden' }}>
-                      <div style={{ height: '100%', width: `${Math.max(intPct, 3)}%`, background: '#fbbf24', borderRadius: '6px' }} />
-                    </div>
-                  </div>
-
-                  {/* Offered Bar */}
-                  <div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', marginBottom: '4px' }}>
-                      <span>Offered (Pending Acceptance)</span>
-                      <strong>{f.count_offered} candidates ({offerPct}%)</strong>
-                    </div>
-                    <div style={{ height: '10px', background: 'rgba(255,255,255,0.06)', borderRadius: '6px', overflow: 'hidden' }}>
-                      <div style={{ height: '100%', width: `${Math.max(offerPct, 3)}%`, background: '#f472b6', borderRadius: '6px' }} />
-                    </div>
-                  </div>
-
-                  {/* Accepted Bar */}
-                  <div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', marginBottom: '4px' }}>
-                      <span>Accepted (Final Placement Finalized)</span>
-                      <strong>{f.count_accepted} candidates ({acceptPct}%)</strong>
-                    </div>
-                    <div style={{ height: '10px', background: 'rgba(255,255,255,0.06)', borderRadius: '6px', overflow: 'hidden' }}>
-                      <div style={{ height: '100%', width: `${Math.max(acceptPct, 3)}%`, background: '#34d399', borderRadius: '6px' }} />
-                    </div>
-                  </div>
+                  ))}
                 </div>
               </div>
             );

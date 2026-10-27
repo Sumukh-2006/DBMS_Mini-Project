@@ -1,10 +1,17 @@
 'use client';
-// app/recruiter/offers/page.js - Issue and Manage Internship Offers
+
 import React, { useEffect, useState } from 'react';
+import PageHeader from '../../../components/PageHeader';
+import StatusBadge from '../../../components/StatusBadge';
+import {
+  IconGift,
+  IconCheck,
+  IconAlertCircle,
+  IconShieldCheck,
+} from '@tabler/icons-react';
 
 export default function RecruiterOffersPage() {
   const [candidates, setCandidates] = useState([]);
-  const [offers, setOffers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedAppId, setSelectedAppId] = useState('');
   const [stipend, setStipend] = useState('95000');
@@ -73,54 +80,85 @@ export default function RecruiterOffersPage() {
   };
 
   return (
-    <div>
-      <div style={{ marginBottom: '24px' }}>
-        <h1 style={{ fontSize: '1.8rem', fontWeight: 800 }}>Issue & Manage Offers</h1>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '4px' }}>
-          Execute stored procedure sp_issue_offer to transition candidates to Offered stage with expiry limits
-        </p>
-      </div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
+      <PageHeader
+        eyebrow="Offer Lifecycle • Stored Procedure sp_issue_offer"
+        title="Issue & Manage Offers"
+        subtitle="Execute stored procedure sp_issue_offer to transition candidates to Offered stage with binding expiry windows"
+        action={
+          <div
+            style={{
+              fontFamily: 'var(--font-mono), monospace',
+              fontSize: '0.74rem',
+              color: 'var(--ink-muted)',
+              padding: '6px 14px',
+              borderRadius: '999px',
+              backgroundColor: 'var(--surface-subtle)',
+              border: '1px solid var(--border)',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+            }}
+          >
+            <IconShieldCheck size={14} color="var(--accent-secondary)" />
+            <span>sp_issue_offer Governed</span>
+          </div>
+        }
+      />
 
       {message && (
-        <div style={{
-          background: 'var(--success-bg)',
-          border: '1px solid var(--success)',
-          color: '#6ee7b7',
-          padding: '12px 18px',
-          borderRadius: 'var(--radius-md)',
-          marginBottom: '20px',
-          fontSize: '0.9rem'
-        }}>
-          {message}
+        <div
+          style={{
+            backgroundColor: '#ffffff',
+            border: '1px solid #bbf7d0',
+            borderLeft: '4px solid #16a34a',
+            padding: '14px 18px',
+            borderRadius: 'var(--radius-md)',
+            color: '#15803d',
+            fontSize: '0.88rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+          }}
+        >
+          <IconCheck size={18} />
+          <span>{message}</span>
         </div>
       )}
 
       {error && (
-        <div style={{
-          background: 'var(--danger-bg)',
-          border: '1px solid var(--danger)',
-          color: '#fca5a5',
-          padding: '12px 18px',
-          borderRadius: 'var(--radius-md)',
-          marginBottom: '20px',
-          fontSize: '0.9rem'
-        }}>
-          {error}
+        <div
+          style={{
+            backgroundColor: '#ffffff',
+            border: '1px solid #fecdd3',
+            borderLeft: '4px solid #e11d48',
+            padding: '14px 18px',
+            borderRadius: 'var(--radius-md)',
+            color: '#be123c',
+            fontSize: '0.88rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+          }}
+        >
+          <IconAlertCircle size={18} />
+          <span>{error}</span>
         </div>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.3fr', gap: '24px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '24px' }}>
         {/* Issue Offer Form */}
-        <div className="glass-card">
-          <h2 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: '16px' }}>
-            🎁 Issue Internship Offer
+        <div className="card" style={{ padding: '28px' }}>
+          <h2 style={{ fontSize: '1.15rem', fontWeight: 700, margin: '0 0 16px 0', color: 'var(--ink)' }}>
+            Issue Formal Placement Offer
           </h2>
 
-          <form onSubmit={handleIssueOffer}>
-            <div className="form-group">
+          <form onSubmit={handleIssueOffer} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div>
               <label className="form-label">Select Candidate</label>
               <select
                 className="form-select"
+                style={{ width: '100%' }}
                 value={selectedAppId}
                 onChange={(e) => setSelectedAppId(e.target.value)}
               >
@@ -132,36 +170,39 @@ export default function RecruiterOffersPage() {
               </select>
             </div>
 
-            <div className="form-group">
+            <div>
               <label className="form-label">Monthly Stipend (₹) *</label>
               <input
                 type="number"
                 min="0"
                 className="form-input"
+                style={{ width: '100%' }}
                 value={stipend}
                 onChange={(e) => setStipend(e.target.value)}
                 required
               />
             </div>
 
-            <div className="form-group">
+            <div>
               <label className="form-label">Internship Start Date *</label>
               <input
                 type="date"
                 className="form-input"
+                style={{ width: '100%' }}
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
                 required
               />
             </div>
 
-            <div className="form-group">
+            <div>
               <label className="form-label">Offer Expiry Window (Days)</label>
               <input
                 type="number"
                 min="1"
                 max="30"
                 className="form-input"
+                style={{ width: '100%' }}
                 value={expiryDays}
                 onChange={(e) => setExpiryDays(e.target.value)}
                 required
@@ -172,7 +213,7 @@ export default function RecruiterOffersPage() {
               type="submit"
               disabled={submitting || candidates.length === 0}
               className="btn btn-primary"
-              style={{ width: '100%', marginTop: '16px', background: 'linear-gradient(135deg, #ec4899, #be185d)' }}
+              style={{ width: '100%', marginTop: '8px' }}
             >
               {submitting ? 'Issuing Offer...' : 'Issue Offer via sp_issue_offer →'}
             </button>
@@ -180,42 +221,44 @@ export default function RecruiterOffersPage() {
         </div>
 
         {/* Candidate Offer Status List */}
-        <div className="glass-card">
-          <h2 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: '16px' }}>
+        <div className="card" style={{ padding: '28px' }}>
+          <h2 style={{ fontSize: '1.15rem', fontWeight: 700, margin: '0 0 16px 0', color: 'var(--ink)' }}>
             Candidate Offer Statuses
           </h2>
 
           {loading ? (
-            <div style={{ color: 'var(--text-secondary)' }}>Loading candidate records...</div>
+            <div style={{ color: 'var(--ink-muted)', fontSize: '0.85rem' }}>Loading candidate records...</div>
           ) : candidates.length === 0 ? (
-            <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>No active candidates ready for offers.</div>
+            <div style={{ color: 'var(--ink-muted)', fontSize: '0.85rem' }}>No active candidates ready for offers.</div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {candidates.map((c) => (
                 <div
                   key={c.application_id}
                   style={{
-                    padding: '14px',
+                    padding: '14px 16px',
                     borderRadius: 'var(--radius-md)',
-                    background: 'rgba(255, 255, 255, 0.02)',
-                    border: '1px solid var(--border-color)',
+                    border: '1px solid var(--border)',
+                    backgroundColor: 'var(--surface-subtle)',
                     display: 'flex',
                     justifyContent: 'space-between',
-                    alignItems: 'center'
+                    alignItems: 'center',
+                    gap: '12px',
                   }}
                 >
                   <div>
-                    <div style={{ fontWeight: 700, fontSize: '0.92rem', color: '#fff' }}>
-                      {c.full_name} ({c.usn})
+                    <div style={{ fontWeight: 600, fontSize: '0.88rem', color: 'var(--ink)' }}>
+                      {c.full_name}{' '}
+                      <span style={{ fontFamily: 'var(--font-mono), monospace', fontSize: '0.74rem', color: 'var(--ink-muted)' }}>
+                        ({c.usn})
+                      </span>
                     </div>
-                    <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '2px' }}>
+                    <div style={{ fontSize: '0.78rem', color: 'var(--ink-muted)', marginTop: '2px' }}>
                       {c.posting_title} • CGPA {c.cgpa}
                     </div>
                   </div>
 
-                  <span className={`badge badge-${c.current_stage.toLowerCase()}`}>
-                    {c.current_stage}
-                  </span>
+                  <StatusBadge status={c.current_stage} />
                 </div>
               ))}
             </div>

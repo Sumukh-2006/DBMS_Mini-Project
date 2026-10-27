@@ -1,6 +1,18 @@
 'use client';
-// app/recruiter/applicants/page.js - Ranked Applicants, Bulk Stage Advancement, and Vector Similarity
+
 import React, { useEffect, useState } from 'react';
+import PageHeader from '../../../components/PageHeader';
+import EmptyState from '../../../components/EmptyState';
+import StatusBadge from '../../../components/StatusBadge';
+import {
+  IconUsers,
+  IconCheck,
+  IconAlertCircle,
+  IconSparkles,
+  IconX,
+  IconArrowRight,
+  IconClock,
+} from '@tabler/icons-react';
 
 export default function RecruiterApplicantsPage() {
   const [postings, setPostings] = useState([]);
@@ -18,7 +30,6 @@ export default function RecruiterApplicantsPage() {
   const [message, setMessage] = useState(null);
   const [error, setError] = useState(null);
 
-  // Load postings dropdown
   useEffect(() => {
     fetch('/api/recruiter/postings')
       .then((res) => res.json())
@@ -32,7 +43,6 @@ export default function RecruiterApplicantsPage() {
       });
   }, []);
 
-  // Fetch applicants for chosen posting
   const fetchApplicants = (postingId, stage) => {
     if (!postingId) return;
     setLoading(true);
@@ -103,7 +113,6 @@ export default function RecruiterApplicantsPage() {
     }
   };
 
-  // Find Similar Candidates via pgvector
   const handleFindSimilar = async (studentId) => {
     setLoadingSimilar(true);
     setSimilarCandidates([]);
@@ -121,47 +130,73 @@ export default function RecruiterApplicantsPage() {
   };
 
   return (
-    <div>
-      <div style={{ marginBottom: '24px' }}>
-        <h1 style={{ fontSize: '1.8rem', fontWeight: 800 }}>Applicants Manager</h1>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '4px' }}>
-          Ranked applicant review with match scoring, savepoint-isolated bulk transitions, and vector similarity search
-        </p>
-      </div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
+      <PageHeader
+        eyebrow="Candidate Funnel • pgvector Ranking & Bulk Transitions"
+        title="Applicants Manager"
+        subtitle="Ranked applicant review with match scoring, savepoint-isolated bulk transitions, and vector similarity search"
+        action={
+          <div
+            style={{
+              fontFamily: 'var(--font-mono), monospace',
+              fontSize: '0.74rem',
+              color: 'var(--ink-muted)',
+              padding: '6px 14px',
+              borderRadius: '999px',
+              backgroundColor: 'var(--surface-subtle)',
+              border: '1px solid var(--border)',
+            }}
+          >
+            {applicants.length} Candidate{applicants.length === 1 ? '' : 's'} Ranked
+          </div>
+        }
+      />
 
       {message && (
-        <div style={{
-          background: 'var(--success-bg)',
-          border: '1px solid var(--success)',
-          color: '#6ee7b7',
-          padding: '12px 18px',
-          borderRadius: 'var(--radius-md)',
-          marginBottom: '20px',
-          fontSize: '0.9rem'
-        }}>
-          {message}
+        <div
+          style={{
+            backgroundColor: '#ffffff',
+            border: '1px solid #bbf7d0',
+            borderLeft: '4px solid #16a34a',
+            padding: '14px 18px',
+            borderRadius: 'var(--radius-md)',
+            color: '#15803d',
+            fontSize: '0.88rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+          }}
+        >
+          <IconCheck size={18} />
+          <span>{message}</span>
         </div>
       )}
 
       {error && (
-        <div style={{
-          background: 'var(--danger-bg)',
-          border: '1px solid var(--danger)',
-          color: '#fca5a5',
-          padding: '12px 18px',
-          borderRadius: 'var(--radius-md)',
-          marginBottom: '20px',
-          fontSize: '0.9rem'
-        }}>
-          {error}
+        <div
+          style={{
+            backgroundColor: '#ffffff',
+            border: '1px solid #fecdd3',
+            borderLeft: '4px solid #e11d48',
+            padding: '14px 18px',
+            borderRadius: 'var(--radius-md)',
+            color: '#be123c',
+            fontSize: '0.88rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+          }}
+        >
+          <IconAlertCircle size={18} />
+          <span>{error}</span>
         </div>
       )}
 
       {/* Select Posting & Stage Filters */}
-      <div className="glass-card" style={{ padding: '20px', marginBottom: '24px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '16px' }}>
+      <div className="card" style={{ padding: '20px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '16px' }}>
           <div>
-            <label className="form-label">Select Active Posting</label>
+            <label className="form-label">Active Role Posting</label>
             <select
               className="form-select"
               style={{ width: '100%' }}
@@ -184,7 +219,7 @@ export default function RecruiterApplicantsPage() {
               value={stageFilter}
               onChange={(e) => setStageFilter(e.target.value)}
             >
-              <option value="">All Stages</option>
+              <option value="">All Pipeline Stages</option>
               <option value="Applied">Applied (Pending Review)</option>
               <option value="Shortlisted">Shortlisted</option>
               <option value="Interview">Interview</option>
@@ -196,26 +231,39 @@ export default function RecruiterApplicantsPage() {
           </div>
         </div>
 
-        {/* Bulk Action Controls */}
+        {/* Bulk Action Controls Toolbar */}
         {selectedAppIds.length > 0 && (
-          <div style={{
-            marginTop: '16px',
-            paddingTop: '16px',
-            borderTop: '1px solid var(--border-color)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            flexWrap: 'wrap',
-            gap: '12px'
-          }}>
-            <div style={{ fontSize: '0.88rem', fontWeight: 600, color: '#a5b4fc' }}>
-              ✓ {selectedAppIds.length} candidate(s) selected
+          <div
+            style={{
+              marginTop: '16px',
+              paddingTop: '16px',
+              borderTop: '1px solid var(--border)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              flexWrap: 'wrap',
+              gap: '12px',
+            }}
+          >
+            <div
+              style={{
+                fontFamily: 'var(--font-mono), monospace',
+                fontSize: '0.78rem',
+                fontWeight: 600,
+                color: 'var(--ink)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+              }}
+            >
+              <span className="indicator-dot-green" />
+              <span>{selectedAppIds.length} candidate(s) selected</span>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
               <select
                 className="form-select"
-                style={{ padding: '6px 12px', fontSize: '0.85rem' }}
+                style={{ padding: '6px 12px', fontSize: '0.8rem' }}
                 value={bulkStage}
                 onChange={(e) => setBulkStage(e.target.value)}
               >
@@ -240,15 +288,16 @@ export default function RecruiterApplicantsPage() {
 
       {/* Applicants Table */}
       {loading ? (
-        <div style={{ color: 'var(--text-secondary)' }}>Ranking candidate profiles...</div>
+        <div style={{ height: '300px', background: 'var(--surface)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)' }} />
       ) : applicants.length === 0 ? (
-        <div className="glass-card" style={{ textAlign: 'center', padding: '40px' }}>
-          <div style={{ fontSize: '2.5rem', marginBottom: '8px' }}>👥</div>
-          <div style={{ fontWeight: 700, fontSize: '1.1rem' }}>No applicants found for this filter</div>
-        </div>
+        <EmptyState
+          icon={<IconUsers size={28} />}
+          title="No applicants found for this filter"
+          description="Candidates who apply for this role will appear here ordered by hybrid match score and pgvector cosine distance."
+        />
       ) : (
-        <div className="data-table-container">
-          <table className="data-table">
+        <div className="table-container">
+          <table className="table">
             <thead>
               <tr>
                 <th style={{ width: '40px' }}>
@@ -259,11 +308,11 @@ export default function RecruiterApplicantsPage() {
                   />
                 </th>
                 <th>Candidate Details</th>
-                <th>Department & CGPA</th>
-                <th>Match Score</th>
-                <th>Vector Cosine Sim</th>
+                <th>Dept & CGPA</th>
+                <th>Hybrid Match</th>
+                <th>Vector Cosine</th>
                 <th>Current Stage</th>
-                <th>Actions</th>
+                <th style={{ textAlign: 'right' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -277,38 +326,48 @@ export default function RecruiterApplicantsPage() {
                     />
                   </td>
                   <td>
-                    <div style={{ fontWeight: 700, color: '#fff' }}>{app.full_name}</div>
-                    <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
+                    <div style={{ fontWeight: 600, color: 'var(--ink)' }}>{app.full_name}</div>
+                    <div style={{ fontFamily: 'var(--font-mono), monospace', fontSize: '0.72rem', color: 'var(--ink-muted)' }}>
                       {app.usn} • Year {app.year}
                     </div>
                   </td>
                   <td>
-                    <div>{app.dept_name} ({app.dept_code})</div>
-                    <div style={{ fontSize: '0.8rem', color: '#34d399', fontWeight: 600 }}>CGPA: {app.cgpa}</div>
+                    <div style={{ fontSize: '0.84rem', color: 'var(--ink)' }}>{app.dept_name} ({app.dept_code})</div>
+                    <div style={{ fontFamily: 'var(--font-mono), monospace', fontSize: '0.74rem', color: '#047857', fontWeight: 600 }}>
+                      CGPA: {app.cgpa}
+                    </div>
                   </td>
                   <td>
-                    <span style={{
-                      fontWeight: 800,
-                      padding: '4px 10px',
-                      borderRadius: 'var(--radius-sm)',
-                      background: 'rgba(99, 102, 241, 0.15)',
-                      color: '#818cf8',
-                      fontSize: '0.88rem'
-                    }}>
+                    <span
+                      style={{
+                        fontFamily: 'var(--font-mono), monospace',
+                        fontSize: '0.76rem',
+                        fontWeight: 700,
+                        padding: '3px 8px',
+                        borderRadius: '999px',
+                        backgroundColor: 'var(--surface-subtle)',
+                        border: '1px solid var(--border)',
+                        color: 'var(--ink)',
+                      }}
+                    >
                       {Math.round(app.match_score)}%
                     </span>
                   </td>
                   <td>
-                    <div style={{ fontSize: '0.85rem', fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)' }}>
+                    <span
+                      style={{
+                        fontFamily: 'var(--font-mono), monospace',
+                        fontSize: '0.76rem',
+                        color: 'var(--ink-muted)',
+                      }}
+                    >
                       {Math.round(parseFloat(app.vector_similarity || 0) * 100)}%
-                    </div>
-                  </td>
-                  <td>
-                    <span className={`badge badge-${app.current_stage.toLowerCase()}`}>
-                      {app.current_stage}
                     </span>
                   </td>
                   <td>
+                    <StatusBadge status={app.current_stage} />
+                  </td>
+                  <td style={{ textAlign: 'right' }}>
                     <button
                       type="button"
                       onClick={() => {
@@ -316,6 +375,7 @@ export default function RecruiterApplicantsPage() {
                         handleFindSimilar(app.student_id);
                       }}
                       className="btn btn-secondary btn-sm"
+                      style={{ fontSize: '0.74rem' }}
                     >
                       View Profile & Similar →
                     </button>
@@ -333,36 +393,60 @@ export default function RecruiterApplicantsPage() {
           <div className="modal-content" style={{ maxWidth: '720px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
               <div>
-                <h2 style={{ fontSize: '1.4rem', fontWeight: 800 }}>{selectedCandidate.full_name}</h2>
-                <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
+                <h2 style={{ fontSize: '1.3rem', fontWeight: 800, margin: 0, color: 'var(--ink)' }}>
+                  {selectedCandidate.full_name}
+                </h2>
+                <div style={{ fontFamily: 'var(--font-mono), monospace', fontSize: '0.76rem', color: 'var(--ink-muted)', marginTop: '4px' }}>
                   {selectedCandidate.usn} • {selectedCandidate.dept_name} • CGPA {selectedCandidate.cgpa}
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setSelectedCandidate(null)}
-                style={{ background: 'transparent', border: 'none', color: '#fff', fontSize: '1.4rem', cursor: 'pointer' }}
+                style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--ink-muted)' }}
               >
-                ×
+                <IconX size={20} />
               </button>
             </div>
 
             {/* Candidate Summary */}
-            <div style={{ background: 'rgba(255, 255, 255, 0.02)', padding: '14px', borderRadius: 'var(--radius-md)', marginBottom: '16px', fontSize: '0.88rem' }}>
-              <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase' }}>Professional Summary</div>
-              <p style={{ marginTop: '4px', color: '#f3f4f6', lineHeight: 1.5 }}>
+            <div
+              style={{
+                backgroundColor: 'var(--surface-subtle)',
+                border: '1px solid var(--border)',
+                padding: '14px 16px',
+                borderRadius: 'var(--radius-md)',
+                marginBottom: '16px',
+                fontSize: '0.84rem',
+              }}
+            >
+              <div style={{ fontFamily: 'var(--font-mono), monospace', fontSize: '0.68rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--ink-muted)', marginBottom: '4px' }}>
+                Professional Summary
+              </div>
+              <p style={{ margin: 0, color: 'var(--ink)', lineHeight: 1.5 }}>
                 {selectedCandidate.about || 'No summary provided.'}
               </p>
             </div>
 
             {/* Skills */}
             <div style={{ marginBottom: '16px' }}>
-              <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', marginBottom: '8px' }}>
-                Skills & Competency
+              <div style={{ fontFamily: 'var(--font-mono), monospace', fontSize: '0.68rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--ink-muted)', marginBottom: '8px' }}>
+                Skills & Proficiency Levels
               </div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                 {selectedCandidate.student_skills?.map((sk, idx) => (
-                  <span key={idx} className="badge badge-applied" style={{ fontSize: '0.75rem' }}>
+                  <span
+                    key={idx}
+                    style={{
+                      fontFamily: 'var(--font-mono), monospace',
+                      fontSize: '0.72rem',
+                      padding: '2px 8px',
+                      borderRadius: '999px',
+                      backgroundColor: 'var(--surface-subtle)',
+                      border: '1px solid var(--border)',
+                      color: 'var(--ink)',
+                    }}
+                  >
                     {sk.name} (Lv {sk.proficiency})
                   </span>
                 ))}
@@ -371,29 +455,45 @@ export default function RecruiterApplicantsPage() {
 
             {/* Stage History Timeline */}
             <div style={{ marginBottom: '20px' }}>
-              <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', marginBottom: '8px' }}>
+              <div style={{ fontFamily: 'var(--font-mono), monospace', fontSize: '0.68rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--ink-muted)', marginBottom: '8px' }}>
                 Immutable Stage Transition History (PostgreSQL)
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                 {selectedCandidate.stage_history?.map((h, i) => (
-                  <div key={i} style={{ fontSize: '0.8rem', padding: '6px 10px', background: 'rgba(0, 0, 0, 0.3)', borderRadius: '4px' }}>
-                    <span style={{ color: '#818cf8', fontWeight: 600 }}>{h.to_stage}</span>
-                    <span style={{ color: 'var(--text-muted)' }}> — {h.reason} ({new Date(h.changed_at).toLocaleString()})</span>
+                  <div
+                    key={i}
+                    style={{
+                      fontSize: '0.76rem',
+                      fontFamily: 'var(--font-mono), monospace',
+                      padding: '8px 12px',
+                      backgroundColor: 'var(--surface-subtle)',
+                      border: '1px solid var(--border)',
+                      borderRadius: 'var(--radius-sm)',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <span style={{ color: 'var(--ink)', fontWeight: 600 }}>{h.to_stage}</span>
+                    <span style={{ color: 'var(--ink-muted)' }}>
+                      {h.reason} ({new Date(h.changed_at).toLocaleString()})
+                    </span>
                   </div>
                 ))}
               </div>
             </div>
 
             {/* Find Similar Candidates Section (pgvector) */}
-            <div style={{ paddingTop: '16px', borderTop: '1px solid var(--border-color)' }}>
-              <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#ec4899', marginBottom: '8px' }}>
-                ✨ Similar Candidates Found via pgvector Embeddings (Cosine Distance)
+            <div style={{ paddingTop: '16px', borderTop: '1px solid var(--border)' }}>
+              <div style={{ fontFamily: 'var(--font-mono), monospace', fontSize: '0.78rem', fontWeight: 700, color: 'var(--ink)', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <IconSparkles size={15} color="var(--accent-secondary)" />
+                <span>Similar Candidates via pgvector Cosine Distance</span>
               </div>
 
               {loadingSimilar ? (
-                <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>Running vector similarity search...</div>
+                <div style={{ fontSize: '0.8rem', color: 'var(--ink-muted)' }}>Running vector similarity search...</div>
               ) : similarCandidates.length === 0 ? (
-                <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>No other candidate profiles found.</div>
+                <div style={{ fontSize: '0.8rem', color: 'var(--ink-muted)' }}>No other candidate profiles found.</div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   {similarCandidates.map((c) => (
@@ -401,31 +501,47 @@ export default function RecruiterApplicantsPage() {
                       key={c.student_id}
                       style={{
                         padding: '10px 14px',
-                        background: 'rgba(255, 255, 255, 0.03)',
+                        backgroundColor: 'var(--surface-subtle)',
+                        border: '1px solid var(--border)',
                         borderRadius: 'var(--radius-md)',
                         display: 'flex',
                         justifyContent: 'space-between',
-                        alignItems: 'center'
+                        alignItems: 'center',
                       }}
                     >
                       <div>
-                        <div style={{ fontWeight: 700, fontSize: '0.88rem' }}>{c.full_name} ({c.usn})</div>
-                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                        <div style={{ fontWeight: 600, fontSize: '0.86rem', color: 'var(--ink)' }}>
+                          {c.full_name}{' '}
+                          <span style={{ fontFamily: 'var(--font-mono), monospace', fontSize: '0.74rem', color: 'var(--ink-muted)' }}>
+                            ({c.usn})
+                          </span>
+                        </div>
+                        <div style={{ fontSize: '0.74rem', color: 'var(--ink-muted)', marginTop: '2px' }}>
                           {c.dept_name} • CGPA {c.cgpa}
                         </div>
                       </div>
-                      <div className="badge badge-offered" style={{ fontSize: '0.72rem' }}>
+                      <span
+                        style={{
+                          fontFamily: 'var(--font-mono), monospace',
+                          fontSize: '0.72rem',
+                          fontWeight: 700,
+                          padding: '3px 8px',
+                          borderRadius: '999px',
+                          backgroundColor: 'rgba(59, 107, 143, 0.08)',
+                          color: 'var(--accent-secondary)',
+                        }}
+                      >
                         {Math.round(parseFloat(c.semantic_similarity) * 100)}% Profile Similarity
-                      </div>
+                      </span>
                     </div>
                   ))}
                 </div>
               )}
             </div>
 
-            <div style={{ marginTop: '20px', textAlign: 'right' }}>
+            <div style={{ marginTop: '24px', textAlign: 'right' }}>
               <button type="button" onClick={() => setSelectedCandidate(null)} className="btn btn-secondary btn-sm">
-                Close
+                Close Profile
               </button>
             </div>
           </div>

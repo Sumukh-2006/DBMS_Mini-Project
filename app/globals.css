@@ -307,7 +307,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* Editorial Data Table */
-.data-table-container {
+.data-table-container,
+.table-container {
   overflow-x: auto;
   background: var(--surface);
   border-radius: var(--radius-card);
@@ -315,14 +316,16 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: var(--shadow-soft);
 }
 
-.data-table {
+.data-table,
+.table {
   width: 100%;
   border-collapse: collapse;
   text-align: left;
   font-size: 0.88rem;
 }
 
-.data-table th {
+.data-table th,
+.table th {
   background: var(--surface-subtle);
   color: var(--ink-muted);
   font-family: var(--font-mono), monospace;
@@ -334,18 +337,21 @@ h1, h2, h3, h4, h5, h6 {
   border-bottom: 1px solid var(--border);
 }
 
-.data-table td {
+.data-table td,
+.table td {
   padding: 16px 18px;
   border-bottom: 1px solid var(--border);
   color: var(--ink);
   background: var(--surface);
 }
 
-.data-table tr:last-child td {
+.data-table tr:last-child td,
+.table tr:last-child td {
   border-bottom: none;
 }
 
-.data-table tr:hover td {
+.data-table tr:hover td,
+.table tr:hover td {
   background: var(--surface-subtle);
 }
 

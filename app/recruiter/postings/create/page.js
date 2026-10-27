@@ -1,7 +1,16 @@
 'use client';
-// app/recruiter/postings/create/page.js - Create Posting with Vector Embedding Generation
+
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import PageHeader from '../../../../components/PageHeader';
+import {
+  IconPlus,
+  IconX,
+  IconSparkles,
+  IconAlertCircle,
+  IconArrowLeft,
+} from '@tabler/icons-react';
+import Link from 'next/link';
 
 export default function CreatePostingPage() {
   const router = useRouter();
@@ -39,7 +48,7 @@ export default function CreatePostingPage() {
     if (skObj && !selectedSkills.find((s) => s.skillId.toString() === skillInputId.toString())) {
       setSelectedSkills([
         ...selectedSkills,
-        { skillId: skObj.skill_id, name: skObj.name, isMandatory, minLevel: parseInt(minLevel) }
+        { skillId: skObj.skill_id, name: skObj.name, isMandatory, minLevel: parseInt(minLevel) },
       ]);
     }
   };
@@ -93,35 +102,50 @@ export default function CreatePostingPage() {
   };
 
   return (
-    <div style={{ maxWidth: '840px', margin: '0 auto' }}>
-      <div style={{ marginBottom: '24px' }}>
-        <h1 style={{ fontSize: '1.8rem', fontWeight: 800 }}>Create New Internship Posting</h1>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '4px' }}>
-          Publish an internship role with automatic 384-dimensional vector embedding in pgvector
-        </p>
-      </div>
+    <div style={{ maxWidth: '860px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '28px' }}>
+      <PageHeader
+        eyebrow="Role Creation • Vector Embedding Pipeline"
+        title="Create New Internship Posting"
+        subtitle="Publish an internship opening with automatic 384-dimensional vector embedding in pgvector"
+        action={
+          <Link
+            href="/recruiter/postings"
+            className="btn btn-secondary btn-sm"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+          >
+            <IconArrowLeft size={14} /> Back to Postings
+          </Link>
+        }
+      />
 
       {error && (
-        <div style={{
-          background: 'var(--danger-bg)',
-          border: '1px solid var(--danger)',
-          color: '#fca5a5',
-          padding: '12px 18px',
-          borderRadius: 'var(--radius-md)',
-          marginBottom: '20px',
-          fontSize: '0.9rem'
-        }}>
-          {error}
+        <div
+          style={{
+            backgroundColor: '#ffffff',
+            border: '1px solid #fecdd3',
+            borderLeft: '4px solid #e11d48',
+            padding: '14px 18px',
+            borderRadius: 'var(--radius-md)',
+            color: '#be123c',
+            fontSize: '0.88rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+          }}
+        >
+          <IconAlertCircle size={18} />
+          <span>{error}</span>
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="glass-card" style={{ padding: '32px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-          <div className="form-group" style={{ gridColumn: 'span 2' }}>
+      <form onSubmit={handleSubmit} className="card" style={{ padding: '32px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '18px' }}>
+          <div style={{ gridColumn: 'span 2' }}>
             <label className="form-label">Internship Title *</label>
             <input
               type="text"
               className="form-input"
+              style={{ width: '100%' }}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g. Systems Engineering Intern - Cloud & Storage"
@@ -129,10 +153,11 @@ export default function CreatePostingPage() {
             />
           </div>
 
-          <div className="form-group" style={{ gridColumn: 'span 2' }}>
+          <div style={{ gridColumn: 'span 2' }}>
             <label className="form-label">Detailed Job Description (Embedded in pgvector) *</label>
             <textarea
               className="form-textarea"
+              style={{ width: '100%' }}
               rows="5"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -141,11 +166,12 @@ export default function CreatePostingPage() {
             />
           </div>
 
-          <div className="form-group">
+          <div>
             <label className="form-label">Location</label>
             <input
               type="text"
               className="form-input"
+              style={{ width: '100%' }}
               value={location}
               onChange={(e) => setLocation(e.target.value)}
               placeholder="e.g. Bengaluru, India"
@@ -153,20 +179,21 @@ export default function CreatePostingPage() {
             />
           </div>
 
-          <div className="form-group">
+          <div>
             <label className="form-label">Work Mode</label>
-            <select className="form-select" value={mode} onChange={(e) => setMode(e.target.value)}>
+            <select className="form-select" style={{ width: '100%' }} value={mode} onChange={(e) => setMode(e.target.value)}>
               <option value="hybrid">Hybrid</option>
               <option value="remote">Remote</option>
               <option value="on-site">On-Site</option>
             </select>
           </div>
 
-          <div className="form-group">
+          <div>
             <label className="form-label">Monthly Stipend (₹) *</label>
             <input
               type="number"
               className="form-input"
+              style={{ width: '100%' }}
               value={stipend}
               onChange={(e) => setStipend(e.target.value)}
               min="0"
@@ -174,11 +201,12 @@ export default function CreatePostingPage() {
             />
           </div>
 
-          <div className="form-group">
+          <div>
             <label className="form-label">Total Openings *</label>
             <input
               type="number"
               className="form-input"
+              style={{ width: '100%' }}
               value={openings}
               onChange={(e) => setOpenings(e.target.value)}
               min="1"
@@ -186,33 +214,36 @@ export default function CreatePostingPage() {
             />
           </div>
 
-          <div className="form-group">
+          <div>
             <label className="form-label">Application Deadline *</label>
             <input
               type="date"
               className="form-input"
+              style={{ width: '100%' }}
               value={deadline}
               onChange={(e) => setDeadline(e.target.value)}
               required
             />
           </div>
 
-          <div className="form-group">
+          <div>
             <label className="form-label">Internship Start Date *</label>
             <input
               type="date"
               className="form-input"
+              style={{ width: '100%' }}
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
               required
             />
           </div>
 
-          <div className="form-group">
+          <div>
             <label className="form-label">Duration (Weeks)</label>
             <input
               type="number"
               className="form-input"
+              style={{ width: '100%' }}
               value={durationWeeks}
               onChange={(e) => setDurationWeeks(e.target.value)}
               min="1"
@@ -220,12 +251,13 @@ export default function CreatePostingPage() {
             />
           </div>
 
-          <div className="form-group">
+          <div>
             <label className="form-label">Minimum Cutoff CGPA (0 - 10)</label>
             <input
               type="number"
               step="0.01"
               className="form-input"
+              style={{ width: '100%' }}
               value={minCgpa}
               onChange={(e) => setMinCgpa(e.target.value)}
               min="0"
@@ -235,8 +267,8 @@ export default function CreatePostingPage() {
           </div>
 
           {/* Eligible Departments */}
-          <div className="form-group" style={{ gridColumn: 'span 2' }}>
-            <label className="form-label">Eligible Departments (M:N Relation)</label>
+          <div style={{ gridColumn: 'span 2' }}>
+            <label className="form-label">Eligible Academic Departments</label>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '6px' }}>
               {[
                 { id: '1', code: 'CSE', name: 'Computer Science' },
@@ -253,17 +285,20 @@ export default function CreatePostingPage() {
                     type="button"
                     onClick={() => handleDeptToggle(d.id)}
                     style={{
-                      padding: '6px 12px',
-                      borderRadius: 'var(--radius-sm)',
-                      border: `1px solid ${isSelected ? 'var(--accent-primary)' : 'var(--border-color)'}`,
-                      background: isSelected ? 'rgba(99, 102, 241, 0.2)' : 'transparent',
-                      color: isSelected ? '#a5b4fc' : 'var(--text-secondary)',
-                      fontSize: '0.82rem',
+                      padding: '6px 14px',
+                      borderRadius: '999px',
+                      border: `1px solid ${isSelected ? 'var(--ink)' : 'var(--border)'}`,
+                      backgroundColor: isSelected ? 'var(--ink)' : '#ffffff',
+                      color: isSelected ? '#ffffff' : 'var(--ink-muted)',
+                      fontFamily: 'var(--font-mono), monospace',
+                      fontSize: '0.74rem',
                       fontWeight: 600,
-                      cursor: 'pointer'
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease',
                     }}
                   >
-                    {isSelected ? '✓ ' : '+ '}{d.code} - {d.name}
+                    {isSelected ? '✓ ' : '+ '}
+                    {d.code} • {d.name}
                   </button>
                 );
               })}
@@ -271,12 +306,12 @@ export default function CreatePostingPage() {
           </div>
 
           {/* Required Skills Picker */}
-          <div className="form-group" style={{ gridColumn: 'span 2', marginTop: '10px' }}>
+          <div style={{ gridColumn: 'span 2', marginTop: '8px' }}>
             <label className="form-label">Skill Requirements (M:N Relation with Mandatory Flag & Min Level)</label>
-            <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
+            <div style={{ display: 'flex', gap: '8px', marginTop: '6px', flexWrap: 'wrap', alignItems: 'center' }}>
               <select
                 className="form-select"
-                style={{ flex: 2 }}
+                style={{ flex: 2, minWidth: '180px' }}
                 value={skillInputId}
                 onChange={(e) => setSkillInputId(e.target.value)}
               >
@@ -289,7 +324,7 @@ export default function CreatePostingPage() {
 
               <select
                 className="form-select"
-                style={{ flex: 1 }}
+                style={{ flex: 1, minWidth: '130px' }}
                 value={minLevel}
                 onChange={(e) => setMinLevel(e.target.value)}
               >
@@ -300,7 +335,7 @@ export default function CreatePostingPage() {
                 <option value="5">Min Lv 5 (Expert)</option>
               </select>
 
-              <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
+              <label style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', color: 'var(--ink)', fontFamily: 'var(--font-mono), monospace', cursor: 'pointer' }}>
                 <input
                   type="checkbox"
                   checked={isMandatory}
@@ -309,35 +344,42 @@ export default function CreatePostingPage() {
                 Mandatory
               </label>
 
-              <button type="button" onClick={handleAddSkill} className="btn btn-secondary btn-sm">
-                + Add Skill
+              <button
+                type="button"
+                onClick={handleAddSkill}
+                className="btn btn-secondary btn-sm"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+              >
+                <IconPlus size={14} /> Add Skill
               </button>
             </div>
 
             {/* Selected Skills Chips */}
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '12px' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '12px' }}>
               {selectedSkills.map((s) => (
                 <span
                   key={s.skillId}
                   style={{
-                    background: s.isMandatory ? 'rgba(99, 102, 241, 0.2)' : 'rgba(255, 255, 255, 0.05)',
-                    border: `1px solid ${s.isMandatory ? 'rgba(99, 102, 241, 0.4)' : 'var(--border-color)'}`,
-                    color: s.isMandatory ? '#a5b4fc' : 'var(--text-secondary)',
-                    padding: '4px 10px',
-                    borderRadius: 'var(--radius-sm)',
-                    fontSize: '0.82rem',
+                    backgroundColor: s.isMandatory ? 'var(--surface-subtle)' : '#ffffff',
+                    border: '1px solid var(--border)',
+                    color: s.isMandatory ? 'var(--ink)' : 'var(--ink-muted)',
+                    padding: '3px 10px',
+                    borderRadius: '999px',
+                    fontFamily: 'var(--font-mono), monospace',
+                    fontSize: '0.74rem',
+                    fontWeight: s.isMandatory ? 600 : 400,
                     display: 'inline-flex',
                     alignItems: 'center',
-                    gap: '6px'
+                    gap: '6px',
                   }}
                 >
                   {s.name} ({s.isMandatory ? `Req Lv${s.minLevel}` : 'Preferred'})
                   <button
                     type="button"
                     onClick={() => handleRemoveSkill(s.skillId)}
-                    style={{ background: 'transparent', border: 'none', color: '#f87171', cursor: 'pointer', fontWeight: 800 }}
+                    style={{ background: 'transparent', border: 'none', color: 'var(--accent)', cursor: 'pointer', padding: 0, display: 'flex' }}
                   >
-                    ×
+                    <IconX size={13} />
                   </button>
                 </span>
               ))}
@@ -348,10 +390,11 @@ export default function CreatePostingPage() {
         <button
           type="submit"
           className="btn btn-primary"
-          style={{ width: '100%', marginTop: '28px', background: 'linear-gradient(135deg, #ec4899, #be185d)' }}
+          style={{ width: '100%', marginTop: '28px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
           disabled={submitting}
         >
-          {submitting ? 'Generating Embeddings & Publishing Posting...' : 'Publish Internship Posting →'}
+          <IconSparkles size={16} />
+          {submitting ? 'Generating Embeddings & Publishing Role...' : 'Publish Internship Role →'}
         </button>
       </form>
     </div>
