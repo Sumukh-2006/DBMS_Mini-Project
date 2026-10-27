@@ -1,5 +1,15 @@
 'use client';
-import { useState } from 'react';
+// app/admin/export/page.js - Institutional Audit & Compliance Export Console
+import React, { useState } from 'react';
+import PageHeader from '../../../components/PageHeader';
+import {
+  IconDownload,
+  IconFileSpreadsheet,
+  IconShieldLock,
+  IconSchool,
+  IconClipboardList,
+  IconBuildingSkyscraper,
+} from '@tabler/icons-react';
 
 export default function ExportReportsPage() {
   const [downloading, setDownloading] = useState(null);
@@ -35,7 +45,8 @@ export default function ExportReportsPage() {
       desc: 'Complete audited list of students with confirmed accepted offers, including USN, department, CGPA, recruiter, stipend, and placement timestamp.',
       badge: 'University Official',
       columns: ['USN', 'Student Name', 'Department', 'CGPA', 'Company', 'Role', 'Stipend', 'Placement Date'],
-      icon: '🎓'
+      icon: IconSchool,
+      color: 'var(--slate-blue)',
     },
     {
       type: 'applications',
@@ -43,7 +54,8 @@ export default function ExportReportsPage() {
       desc: 'Comprehensive application tracking records across all stages (Applied, Shortlisted, Interview, Offered, Accepted, Rejected, Withdrawn) with match scores.',
       badge: 'Audited Pipeline',
       columns: ['Application ID', 'USN', 'Candidate', 'Company', 'Posting', 'Stage', 'Match Score', 'Applied At'],
-      icon: '📋'
+      icon: IconClipboardList,
+      color: 'var(--coral)',
     },
     {
       type: 'companies',
@@ -51,69 +63,174 @@ export default function ExportReportsPage() {
       desc: 'Aggregated analytics sourced from v_company_stats view showcasing total postings, applicants attracted, offers issued, and acceptance rates.',
       badge: 'Corporate Relations',
       columns: ['Company Name', 'Industry', 'Verified', 'Postings', 'Applicants', 'Offers Given', 'Offers Accepted', 'Acceptance %'],
-      icon: '🏢'
-    }
+      icon: IconBuildingSkyscraper,
+      color: '#0f766e',
+    },
   ];
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-      <div>
-        <h1 style={{ fontSize: '1.75rem', fontWeight: 700, letterSpacing: '-0.02em', marginBottom: '0.5rem' }}>
-          Audit & Compliance Data Export
-        </h1>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
-          Generate certified CSV exports for university accreditation (NBA/NAAC), placement committee reviews, and corporate audit logs.
-        </p>
-      </div>
-
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '1.5rem' }}>
-        {reports.map((r) => (
-          <div key={r.type} className="card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-            <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
-                <span style={{ fontSize: '2.25rem' }}>{r.icon}</span>
-                <span className="badge badge-accent" style={{ fontSize: '0.75rem' }}>{r.badge}</span>
-              </div>
-              <h2 style={{ fontSize: '1.15rem', fontWeight: 600, marginBottom: '0.5rem' }}>
-                {r.title}
-              </h2>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', lineHeight: 1.5, marginBottom: '1.25rem' }}>
-                {r.desc}
-              </p>
-
-              <div style={{ background: 'var(--surface-color)', padding: '0.75rem 1rem', borderRadius: 'var(--radius-sm)', marginBottom: '1.5rem' }}>
-                <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--text-secondary)', fontWeight: 600, marginBottom: '0.5rem' }}>
-                  Included Fields
-                </div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem' }}>
-                  {r.columns.map((col) => (
-                    <span key={col} style={{ fontSize: '0.75rem', background: 'rgba(255,255,255,0.06)', padding: '0.2rem 0.5rem', borderRadius: '4px' }}>
-                      {col}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <button
-              onClick={() => handleDownload(r.type)}
-              disabled={downloading === r.type}
-              className="btn btn-primary"
-              style={{ width: '100%', justifyContent: 'center' }}
-            >
-              {downloading === r.type ? 'Preparing CSV...' : `⬇ Download ${r.type.toUpperCase()} CSV`}
-            </button>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
+      <PageHeader
+        title="Audit & Compliance Data Export"
+        subtitle="Generate certified CSV exports for university accreditation (NBA/NAAC), placement committee reviews, and corporate audit logs"
+        badge={
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span className="live-indicator-dot" />
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', letterSpacing: '0.04em' }}>
+              ACCREDITATION EXPORTS
+            </span>
           </div>
-        ))}
+        }
+      />
+
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
+          gap: '20px',
+        }}
+      >
+        {reports.map((r) => {
+          const Icon = r.icon;
+          return (
+            <div
+              key={r.type}
+              className="card"
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                padding: '24px',
+              }}
+            >
+              <div>
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    marginBottom: '16px',
+                  }}
+                >
+                  <div
+                    style={{
+                      width: '42px',
+                      height: '42px',
+                      borderRadius: '10px',
+                      background: 'var(--surface-subtle)',
+                      border: '1px solid var(--border)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: r.color,
+                    }}
+                  >
+                    <Icon size={22} />
+                  </div>
+                  <span className="mono-badge">{r.badge}</span>
+                </div>
+
+                <h2 style={{ fontSize: '1.05rem', fontWeight: 600, color: 'var(--ink)', marginBottom: '8px' }}>
+                  {r.title}
+                </h2>
+                <p
+                  style={{
+                    color: 'var(--ink-muted)',
+                    fontSize: '0.85rem',
+                    lineHeight: 1.55,
+                    marginBottom: '18px',
+                  }}
+                >
+                  {r.desc}
+                </p>
+
+                <div
+                  style={{
+                    background: 'var(--surface-subtle)',
+                    padding: '12px 14px',
+                    borderRadius: 'var(--radius-button)',
+                    border: '1px solid var(--border)',
+                    marginBottom: '20px',
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: '0.72rem',
+                      fontFamily: 'var(--font-mono)',
+                      textTransform: 'uppercase',
+                      color: 'var(--ink-muted)',
+                      fontWeight: 600,
+                      marginBottom: '8px',
+                      letterSpacing: '0.04em',
+                    }}
+                  >
+                    Included Certified Schema Columns
+                  </div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                    {r.columns.map((col) => (
+                      <span
+                        key={col}
+                        style={{
+                          fontSize: '0.72rem',
+                          fontFamily: 'var(--font-mono)',
+                          background: 'var(--surface)',
+                          border: '1px solid var(--border)',
+                          padding: '2px 8px',
+                          borderRadius: '4px',
+                          color: 'var(--ink)',
+                        }}
+                      >
+                        {col}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <button
+                onClick={() => handleDownload(r.type)}
+                disabled={downloading === r.type}
+                className="btn btn-primary"
+                style={{
+                  width: '100%',
+                  justifyContent: 'center',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                }}
+              >
+                <IconDownload size={16} />
+                <span>
+                  {downloading === r.type ? 'Preparing Certified CSV...' : `Download ${r.type.toUpperCase()} CSV`}
+                </span>
+              </button>
+            </div>
+          );
+        })}
       </div>
 
-      <div className="card" style={{ background: 'rgba(16, 185, 129, 0.05)', borderColor: 'rgba(16, 185, 129, 0.2)' }}>
-        <h3 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--accent-color)', marginBottom: '0.5rem' }}>
-          🛡 Institutional Data Privacy & Audit Guarantee
-        </h3>
-        <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-          All exported records strictly adhere to PES University confidentiality guidelines. Passwords and internal cryptographic salts are never exposed in reports. Sensitive student data exports are recorded in the PostgreSQL <code>audit_log</code> table for full accountability.
-        </p>
+      <div
+        className="card"
+        style={{
+          padding: '20px 24px',
+          background: 'rgba(59, 107, 143, 0.04)',
+          borderColor: 'rgba(59, 107, 143, 0.2)',
+          display: 'flex',
+          gap: '16px',
+          alignItems: 'flex-start',
+        }}
+      >
+        <div style={{ color: 'var(--slate-blue)', marginTop: '2px' }}>
+          <IconShieldLock size={22} />
+        </div>
+        <div>
+          <h3 style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--ink)', marginBottom: '4px' }}>
+            Institutional Data Privacy & Cryptographic Audit Guarantee
+          </h3>
+          <p style={{ fontSize: '0.84rem', color: 'var(--ink-muted)', lineHeight: 1.6 }}>
+            All exported records strictly adhere to PES University confidentiality guidelines. Passwords and internal cryptographic salts are never exposed in reports. Sensitive student data exports are recorded in the PostgreSQL <code>audit_log</code> table for full accountability.
+          </p>
+        </div>
       </div>
     </div>
   );

@@ -1,6 +1,16 @@
 'use client';
 // app/admin/audit-logs/page.js - Immutable Audit Log Inspector
 import React, { useEffect, useState } from 'react';
+import PageHeader from '../../../components/PageHeader';
+import StatusBadge from '../../../components/StatusBadge';
+import EmptyState from '../../../components/EmptyState';
+import {
+  IconFileText,
+  IconFilter,
+  IconShieldLock,
+  IconUser,
+  IconClock,
+} from '@tabler/icons-react';
 
 export default function AdminAuditLogsPage() {
   const [logs, setLogs] = useState([]);
@@ -29,20 +39,37 @@ export default function AdminAuditLogsPage() {
   }, [entityFilter]);
 
   return (
-    <div>
-      <div style={{ marginBottom: '24px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-          <span className="badge badge-interview">Append-Only • Protected by trg_history_immutable Trigger</span>
-        </div>
-        <h1 style={{ fontSize: '1.8rem', fontWeight: 800 }}>Tamper-Evident Audit Logs</h1>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '4px' }}>
-          Chronological historical records of state transitions, offer acceptances, and policy executions
-        </p>
-      </div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
+      <PageHeader
+        title="Tamper-Evident Audit Logs"
+        subtitle="Chronological historical records of state transitions, offer acceptances, and policy executions"
+        badge={
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span className="live-indicator-dot" />
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', letterSpacing: '0.04em' }}>
+              IMMUTABLE • TRG_HISTORY_IMMUTABLE
+            </span>
+          </div>
+        }
+      />
 
       {/* Filter Bar */}
-      <div className="glass-card" style={{ padding: '16px 20px', marginBottom: '24px', display: 'flex', gap: '16px', alignItems: 'center' }}>
-        <label className="form-label" style={{ marginBottom: 0 }}>Filter by Entity:</label>
+      <div
+        className="card"
+        style={{
+          padding: '16px 20px',
+          display: 'flex',
+          gap: '16px',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <IconFilter size={18} color="var(--ink-muted)" />
+          <label className="form-label" style={{ marginBottom: 0, fontWeight: 600 }}>
+            Filter by Entity:
+          </label>
+        </div>
         <select
           className="form-select"
           style={{ maxWidth: '240px' }}
@@ -56,15 +83,26 @@ export default function AdminAuditLogsPage() {
           <option value="policy_config">Policy Config</option>
           <option value="internship_posting">Internship Posting</option>
         </select>
+        <span style={{ fontSize: '0.78rem', color: 'var(--ink-muted)', fontFamily: 'var(--font-mono)' }}>
+          Showing {logs.length} logged event{logs.length === 1 ? '' : 's'}
+        </span>
       </div>
 
       {/* Logs Table */}
       {loading ? (
-        <div style={{ color: 'var(--text-secondary)' }}>Loading audit trail...</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '60px 0', justifyContent: 'center' }}>
+          <span className="live-indicator-dot" />
+          <span style={{ color: 'var(--ink-muted)', fontSize: '0.9rem', fontFamily: 'var(--font-mono)' }}>
+            Loading audit trail...
+          </span>
+        </div>
       ) : logs.length === 0 ? (
-        <div className="glass-card" style={{ textAlign: 'center', padding: '40px' }}>
-          <div style={{ fontSize: '2.5rem', marginBottom: '8px' }}>📜</div>
-          <div style={{ fontWeight: 700, fontSize: '1.1rem' }}>No audit logs recorded for this filter</div>
+        <div className="card" style={{ padding: '60px 24px' }}>
+          <EmptyState
+            icon={IconFileText}
+            title="No audit events found"
+            description="No system or user actions match the selected entity filter."
+          />
         </div>
       ) : (
         <div className="data-table-container">
@@ -82,41 +120,67 @@ export default function AdminAuditLogsPage() {
             <tbody>
               {logs.map((log) => (
                 <tr key={log.audit_id}>
-                  <td style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>
-                    #{log.audit_id}
+                  <td>
+                    <span
+                      style={{
+                        fontFamily: 'var(--font-mono)',
+                        fontSize: '0.78rem',
+                        color: 'var(--ink-muted)',
+                      }}
+                    >
+                      #{log.audit_id}
+                    </span>
                   </td>
-                  <td style={{ fontSize: '0.82rem', whiteSpace: 'nowrap' }}>
+                  <td style={{ fontSize: '0.8rem', whiteSpace: 'nowrap', fontFamily: 'var(--font-mono)' }}>
                     {new Date(log.created_at).toLocaleString()}
                   </td>
                   <td>
-                    <div style={{ fontWeight: 600, color: '#fff' }}>{log.actor_email || 'System Action'}</div>
+                    <div style={{ fontWeight: 600, color: 'var(--ink)', fontSize: '0.88rem' }}>
+                      {log.actor_email || 'System Action'}
+                    </div>
                     {log.actor_role && (
-                      <span className="badge badge-applied" style={{ fontSize: '0.68rem', marginTop: '2px' }}>
+                      <span
+                        className="mono-badge"
+                        style={{
+                          fontSize: '0.65rem',
+                          marginTop: '3px',
+                          display: 'inline-block',
+                          textTransform: 'uppercase',
+                        }}
+                      >
                         {log.actor_role}
                       </span>
                     )}
                   </td>
                   <td>
-                    <span className="badge badge-interview" style={{ fontSize: '0.72rem' }}>
-                      {log.action}
-                    </span>
+                    <StatusBadge status="interview" label={log.action} />
                   </td>
                   <td>
-                    <strong style={{ color: '#a5b4fc', fontFamily: 'var(--font-mono)' }}>{log.entity}</strong>
+                    <strong style={{ color: 'var(--slate-blue)', fontFamily: 'var(--font-mono)', fontSize: '0.85rem' }}>
+                      {log.entity}
+                    </strong>
                     {log.entity_id && (
-                      <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}> (id: {log.entity_id})</span>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--ink-muted)', fontFamily: 'var(--font-mono)' }}>
+                        {' '}(id: {log.entity_id})
+                      </span>
                     )}
                   </td>
-                  <td style={{ maxWidth: '320px' }}>
-                    <pre style={{
-                      fontFamily: 'var(--font-mono)',
-                      fontSize: '0.75rem',
-                      color: 'var(--text-secondary)',
-                      background: 'rgba(0,0,0,0.25)',
-                      padding: '6px 10px',
-                      borderRadius: '4px',
-                      overflowX: 'auto'
-                    }}>
+                  <td style={{ maxWidth: '360px' }}>
+                    <pre
+                      style={{
+                        fontFamily: 'var(--font-mono)',
+                        fontSize: '0.72rem',
+                        color: 'var(--ink)',
+                        background: 'var(--surface-subtle)',
+                        border: '1px solid var(--border)',
+                        padding: '6px 10px',
+                        borderRadius: '6px',
+                        overflowX: 'auto',
+                        margin: 0,
+                        whiteSpace: 'pre-wrap',
+                        wordBreak: 'break-all',
+                      }}
+                    >
                       {typeof log.details === 'object' ? JSON.stringify(log.details) : log.details}
                     </pre>
                   </td>
