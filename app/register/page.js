@@ -1,8 +1,10 @@
 'use client';
-// app/register/page.js - Registration for Student and Recruiter
+
+// app/register/page.js - Registration for Student and Recruiter (Light Editorial Style)
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { IconSparkles, IconArrowLeft } from '@tabler/icons-react';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -55,42 +57,91 @@ export default function RegisterPage() {
   };
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '40px 24px'
-    }}>
-      <div className="glass-card" style={{ maxWidth: '540px', width: '100%' }}>
+    <div
+      style={{
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '40px 24px',
+        position: 'relative',
+      }}
+    >
+      <div style={{ position: 'absolute', top: '24px', left: '24px' }}>
+        <Link
+          href="/"
+          className="btn btn-secondary btn-sm"
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+        >
+          <IconArrowLeft size={14} />
+          <span>Back to Home</span>
+        </Link>
+      </div>
+
+      <div
+        className="editorial-card"
+        style={{
+          maxWidth: '560px',
+          width: '100%',
+          padding: '36px 32px',
+        }}
+      >
         <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-          <h1 style={{ fontSize: '1.6rem', fontWeight: 800 }}>Create an Account</h1>
-          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
-            Register on InternTrack (PES University Placement Platform)
+          <div
+            style={{
+              width: '42px',
+              height: '42px',
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, #0a0a0a 0%, #3b6b8f 100%)',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#fff',
+              marginBottom: '12px',
+            }}
+          >
+            <IconSparkles size={20} />
+          </div>
+
+          <div className="mono-eyebrow" style={{ justifyContent: 'center', marginBottom: '6px' }}>
+            <span className="indicator-dot" /> NEW REGISTRATION
+          </div>
+
+          <h1 style={{ fontSize: '1.65rem', fontWeight: 700, letterSpacing: '-0.025em', color: 'var(--ink)' }}>
+            Create an Account
+          </h1>
+          <p style={{ fontSize: '0.86rem', color: 'var(--ink-muted)', marginTop: '4px' }}>
+            InternTrack • PES University Placement Platform
           </p>
 
-          {/* Role Toggle */}
-          <div style={{
-            display: 'inline-flex',
-            background: 'var(--bg-input)',
-            borderRadius: 'var(--radius-md)',
-            padding: '4px',
-            marginTop: '16px',
-            border: '1px solid var(--border-color)'
-          }}>
+          {/* Floating Pill Role Toggle */}
+          <div
+            style={{
+              display: 'inline-flex',
+              background: 'var(--surface-subtle)',
+              borderRadius: '999px',
+              padding: '4px',
+              marginTop: '16px',
+              border: '1px solid var(--border)',
+            }}
+          >
             <button
               type="button"
               onClick={() => setRole('student')}
               style={{
                 padding: '6px 20px',
-                borderRadius: 'var(--radius-sm)',
+                borderRadius: '999px',
                 border: 'none',
+                fontFamily: 'var(--font-mono), monospace',
                 fontWeight: 600,
-                fontSize: '0.85rem',
+                fontSize: '0.74rem',
+                textTransform: 'uppercase',
+                letterSpacing: '0.06em',
                 cursor: 'pointer',
-                background: role === 'student' ? 'var(--accent-primary)' : 'transparent',
-                color: role === 'student' ? '#fff' : 'var(--text-secondary)',
-                transition: 'all 0.2s'
+                background: role === 'student' ? 'var(--ink)' : 'transparent',
+                color: role === 'student' ? '#ffffff' : 'var(--ink-muted)',
+                transition: 'all 0.16s ease',
               }}
             >
               Student
@@ -100,14 +151,17 @@ export default function RegisterPage() {
               onClick={() => setRole('recruiter')}
               style={{
                 padding: '6px 20px',
-                borderRadius: 'var(--radius-sm)',
+                borderRadius: '999px',
                 border: 'none',
+                fontFamily: 'var(--font-mono), monospace',
                 fontWeight: 600,
-                fontSize: '0.85rem',
+                fontSize: '0.74rem',
+                textTransform: 'uppercase',
+                letterSpacing: '0.06em',
                 cursor: 'pointer',
-                background: role === 'recruiter' ? 'var(--accent-primary)' : 'transparent',
-                color: role === 'recruiter' ? '#fff' : 'var(--text-secondary)',
-                transition: 'all 0.2s'
+                background: role === 'recruiter' ? 'var(--ink)' : 'transparent',
+                color: role === 'recruiter' ? '#ffffff' : 'var(--ink-muted)',
+                transition: 'all 0.16s ease',
               }}
             >
               Recruiter
@@ -116,15 +170,18 @@ export default function RegisterPage() {
         </div>
 
         {error && (
-          <div style={{
-            background: 'var(--danger-bg)',
-            border: '1px solid var(--danger)',
-            color: '#fca5a5',
-            padding: '10px 14px',
-            borderRadius: 'var(--radius-md)',
-            marginBottom: '18px',
-            fontSize: '0.85rem'
-          }}>
+          <div
+            style={{
+              backgroundColor: 'var(--accent-faint)',
+              border: '1px solid rgba(217, 45, 32, 0.3)',
+              color: 'var(--accent)',
+              padding: '10px 14px',
+              borderRadius: 'var(--radius-sm)',
+              marginBottom: '18px',
+              fontSize: '0.82rem',
+              fontFamily: 'var(--font-mono), monospace',
+            }}
+          >
             {error}
           </div>
         )}
@@ -283,17 +340,17 @@ export default function RegisterPage() {
           <button
             type="submit"
             className="btn btn-primary"
-            style={{ width: '100%', marginTop: '16px' }}
+            style={{ width: '100%', marginTop: '16px', padding: '12px' }}
             disabled={loading}
           >
-            {loading ? 'Creating Account...' : `Register as ${role === 'student' ? 'Student' : 'Recruiter'}`}
+            {loading ? 'CREATING ACCOUNT...' : `REGISTER AS ${role === 'student' ? 'STUDENT' : 'RECRUITER'} →`}
           </button>
         </form>
 
-        <div style={{ textAlign: 'center', marginTop: '20px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+        <div style={{ textAlign: 'center', marginTop: '22px', fontSize: '0.84rem', color: 'var(--ink-muted)' }}>
           Already have an account?{' '}
-          <Link href="/login" style={{ color: 'var(--accent-primary)', fontWeight: 600 }}>
-            Sign In
+          <Link href="/login" style={{ color: 'var(--ink)', fontWeight: 600, textDecoration: 'underline' }}>
+            Sign In here
           </Link>
         </div>
       </div>
