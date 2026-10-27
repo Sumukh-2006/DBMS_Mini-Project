@@ -213,7 +213,7 @@ export default function LandingPage() {
               }}
             >
               <span className="indicator-dot" />
-              <span>CAPSTONE • LEVEL 3 DBMS PLATFORM</span>
+              <span>DBMS MINI-PROJECT • LEVEL 3 EVALUATION</span>
             </div>
 
             <h1
@@ -739,7 +739,7 @@ export default function LandingPage() {
             <span className="indicator-dot" />
             <span>InternTrack • PES University Department of Computer Science & Engineering</span>
           </div>
-          <div>Level 3 Capstone Evaluation</div>
+          <div>Level 3 DBMS Evaluation</div>
         </div>
       </footer>
 

@@ -58,7 +58,7 @@ export default function AdminDashboard() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
       <PageHeader
         title="Placement Cell Governance"
-        subtitle="PES University • Experiential Learning Capstone Oversight"
+        subtitle="PES University • Experiential Learning DBMS Placement Oversight"
         badge={
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <span className="live-indicator-dot" />
