@@ -2,12 +2,19 @@
 import React from 'react';
 
 export default function EmptyState({
-  icon: Icon = null,
+  icon = null,
   title = 'No Data Found',
   description = 'There are no active items to display for this view.',
   action = null,
   style = {},
 }) {
+  const renderIcon = () => {
+    if (!icon) return null;
+    if (React.isValidElement(icon)) return icon;
+    const IconComponent = icon;
+    return <IconComponent size={22} stroke={1.5} />;
+  };
+
   return (
     <div
       className="editorial-card"
@@ -21,7 +28,7 @@ export default function EmptyState({
         ...style,
       }}
     >
-      {Icon && (
+      {icon && (
         <div
           style={{
             width: '48px',
@@ -36,7 +43,7 @@ export default function EmptyState({
             color: 'var(--ink-muted)',
           }}
         >
-          <Icon size={22} stroke={1.5} />
+          {renderIcon()}
         </div>
       )}
       <div

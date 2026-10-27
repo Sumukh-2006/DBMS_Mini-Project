@@ -5,11 +5,16 @@ export default function PageHeader({
   eyebrow,
   title,
   description,
+  subtitle,
   actions = null,
+  action = null,
   showIndicator = true,
   indicatorColor = 'red', // 'red' | 'green'
   style = {},
 }) {
+  const desc = description || subtitle;
+  const acts = actions || action;
+
   return (
     <div
       style={{
@@ -45,12 +50,12 @@ export default function PageHeader({
             fontWeight: 700,
             lineHeight: 1.15,
             color: 'var(--ink)',
-            marginBottom: description ? '10px' : '0',
+            marginBottom: desc ? '10px' : '0',
           }}
         >
           {title}
         </h1>
-        {description && (
+        {desc && (
           <p
             style={{
               fontSize: '0.98rem',
@@ -58,12 +63,12 @@ export default function PageHeader({
               lineHeight: 1.55,
             }}
           >
-            {description}
+            {desc}
           </p>
         )}
       </div>
 
-      {actions && (
+      {acts && (
         <div
           style={{
             display: 'flex',
@@ -72,7 +77,7 @@ export default function PageHeader({
             flexWrap: 'wrap',
           }}
         >
-          {actions}
+          {acts}
         </div>
       )}
     </div>

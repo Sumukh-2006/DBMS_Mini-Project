@@ -5,11 +5,22 @@ export default function StatCard({
   label,
   value,
   subtext,
-  icon: Icon = null,
+  caption,
+  delta,
+  icon = null,
   indicator = false,
   indicatorColor = 'red', // 'red' | 'green'
   style = {},
 }) {
+  const note = subtext || caption;
+
+  const renderIcon = () => {
+    if (!icon) return null;
+    if (React.isValidElement(icon)) return icon;
+    const IconComponent = icon;
+    return <IconComponent size={18} stroke={1.75} />;
+  };
+
   return (
     <div
       className="editorial-card"
@@ -19,6 +30,7 @@ export default function StatCard({
         justifyContent: 'space-between',
         padding: '22px 24px',
         position: 'relative',
+        backgroundColor: '#ffffff',
         ...style,
       }}
     >
@@ -43,7 +55,7 @@ export default function StatCard({
           )}
           {label}
         </div>
-        {Icon && (
+        {icon && (
           <div
             style={{
               color: 'var(--ink-muted)',
@@ -52,7 +64,7 @@ export default function StatCard({
               justifyContent: 'center',
             }}
           >
-            <Icon size={18} stroke={1.75} />
+            {renderIcon()}
           </div>
         )}
       </div>
@@ -65,21 +77,22 @@ export default function StatCard({
             letterSpacing: '-0.03em',
             lineHeight: 1,
             color: 'var(--ink)',
-            marginBottom: subtext ? '6px' : '0',
+            marginBottom: note ? '6px' : '0',
+            fontFamily: 'var(--font-mono), monospace',
           }}
         >
           {value}
         </div>
-        {subtext && (
+        {note && (
           <div
             style={{
-              fontSize: '0.78rem',
+              fontSize: '0.76rem',
               color: 'var(--ink-muted)',
               fontFamily: 'var(--font-mono), monospace',
               letterSpacing: '0.02em',
             }}
           >
-            {subtext}
+            {note}
           </div>
         )}
       </div>

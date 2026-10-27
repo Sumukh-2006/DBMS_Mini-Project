@@ -1,7 +1,21 @@
 'use client';
-// app/student/page.js - Student Dashboard
+
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import PageHeader from '../../components/PageHeader';
+import StatCard from '../../components/StatCard';
+import StatusBadge from '../../components/StatusBadge';
+import {
+  IconFileText,
+  IconChecklist,
+  IconCalendarEvent,
+  IconTrophy,
+  IconArrowRight,
+  IconAlertCircle,
+  IconClock,
+  IconBell,
+  IconVideo,
+} from '@tabler/icons-react';
 
 export default function StudentDashboard() {
   const [data, setData] = useState(null);
@@ -21,209 +35,382 @@ export default function StudentDashboard() {
   }, []);
 
   if (loading) {
-    return <div style={{ color: 'var(--text-secondary)' }}>Loading student metrics...</div>;
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <div style={{ height: '70px', background: 'var(--surface)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)' }} />
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} style={{ height: '110px', background: 'var(--surface)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)' }} />
+          ))}
+        </div>
+      </div>
+    );
   }
 
-  const { student, stages, activeCount, isPlaced, placedOffer, nextInterview, pendingOffers, upcomingDeadlines, notifications } = data;
+  const {
+    student,
+    stages,
+    activeCount = 0,
+    isPlaced = false,
+    placedOffer = null,
+    nextInterview = null,
+    pendingOffers = [],
+    upcomingDeadlines = [],
+    notifications = [],
+  } = data || {};
 
   return (
-    <div>
-      {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '28px' }}>
-        <div>
-          <h1 style={{ fontSize: '1.8rem', fontWeight: 800 }}>Welcome back, {student?.full_name}! 👋</h1>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '4px' }}>
-            PES University Placement Drive • {student?.usn}
-          </p>
-        </div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
+      {/* Editorial Page Header */}
+      <PageHeader
+        eyebrow="Student Portal • Level 3 Placement Engine"
+        title={student?.full_name ? `Welcome back, ${student.full_name}` : 'Student Dashboard'}
+        subtitle={
+          student
+            ? `PES University Drive • USN: ${student.usn} • Dept: ${student.dept_code || 'CS'} • CGPA: ${student.cgpa}`
+            : 'Track applications, interviews, and verified offers'
+        }
+        action={
+          isPlaced ? (
+            <div
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '8px 16px',
+                borderRadius: '999px',
+                backgroundColor: 'rgba(16, 185, 129, 0.08)',
+                border: '1px solid rgba(16, 185, 129, 0.25)',
+                color: '#047857',
+                fontFamily: 'var(--font-mono), monospace',
+                fontSize: '0.76rem',
+                fontWeight: 600,
+              }}
+            >
+              <span className="indicator-dot-green" />
+              <span>Placed @ {placedOffer?.company_name} (₹{parseFloat(placedOffer?.stipend || 0).toLocaleString()}/mo)</span>
+            </div>
+          ) : (
+            <div
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '8px 16px',
+                borderRadius: '999px',
+                backgroundColor: 'var(--surface-subtle)',
+                border: '1px solid var(--border)',
+                color: 'var(--ink-muted)',
+                fontFamily: 'var(--font-mono), monospace',
+                fontSize: '0.76rem',
+                fontWeight: 600,
+              }}
+            >
+              <span className="indicator-dot" />
+              <span>Active Job Seeker • {activeCount} Active</span>
+            </div>
+          )
+        }
+      />
 
-        {isPlaced ? (
-          <div className="badge badge-accepted" style={{ fontSize: '0.9rem', padding: '8px 16px' }}>
-            🎉 Placed at {placedOffer?.company_name} (₹{parseFloat(placedOffer?.stipend).toLocaleString()}/mo)
-          </div>
-        ) : (
-          <div className="badge badge-applied" style={{ fontSize: '0.9rem', padding: '8px 16px' }}>
-            Active Job Seeker • {activeCount} Active Applications
-          </div>
-        )}
-      </div>
-
-      {/* Urgent Action Alerts */}
+      {/* Urgent Action Alerts: Pending Offers */}
       {pendingOffers?.length > 0 && (
-        <div style={{
-          background: 'rgba(236, 72, 153, 0.12)',
-          border: '1px solid rgba(236, 72, 153, 0.4)',
-          borderRadius: 'var(--radius-lg)',
-          padding: '20px',
-          marginBottom: '24px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center'
-        }}>
-          <div>
-            <div style={{ fontWeight: 700, fontSize: '1.1rem', color: '#f472b6', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span>🎁</span> You have {pendingOffers.length} pending internship offer requiring your response!
+        <div
+          style={{
+            backgroundColor: '#fff',
+            border: '1px solid #fecdd3',
+            borderLeft: '4px solid #e11d48',
+            borderRadius: 'var(--radius-lg)',
+            padding: '20px 24px',
+            display: 'flex',
+            flexWrap: 'wrap',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            gap: '16px',
+            boxShadow: '0 4px 16px rgba(225, 29, 72, 0.06)',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '14px' }}>
+            <div
+              style={{
+                width: '36px',
+                height: '36px',
+                borderRadius: '50%',
+                backgroundColor: 'rgba(225, 29, 72, 0.08)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#e11d48',
+                flexShrink: 0,
+              }}
+            >
+              <IconAlertCircle size={20} />
             </div>
-            <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
-              From {pendingOffers.map(o => `${o.company_name} (₹${parseFloat(o.stipend).toLocaleString()}/mo)`).join(', ')}.
-              Expires on {new Date(pendingOffers[0].expires_at).toLocaleDateString()}.
+            <div>
+              <div style={{ fontWeight: 700, fontSize: '0.98rem', color: 'var(--ink)' }}>
+                Action Required: {pendingOffers.length} Pending Placement Offer
+                {pendingOffers.length > 1 ? 's' : ''}
+              </div>
+              <div style={{ fontSize: '0.84rem', color: 'var(--ink-muted)', marginTop: '4px', lineHeight: 1.4 }}>
+                From {pendingOffers.map((o) => `${o.company_name} (₹${parseFloat(o.stipend).toLocaleString()}/mo)`).join(', ')}.
+                Expires {new Date(pendingOffers[0].expires_at).toLocaleDateString()}.
+              </div>
             </div>
           </div>
-          <Link href="/student/offers" className="btn btn-primary" style={{ background: '#ec4899' }}>
-            Review Offers →
+          <Link
+            href="/student/offers"
+            className="btn btn-primary"
+            style={{ backgroundColor: '#e11d48', borderColor: '#e11d48' }}
+          >
+            Review Offer <IconArrowRight size={14} />
           </Link>
         </div>
       )}
 
+      {/* Urgent Action Alerts: Next Interview */}
       {nextInterview && (
-        <div style={{
-          background: 'rgba(245, 158, 11, 0.1)',
-          border: '1px solid rgba(245, 158, 11, 0.4)',
-          borderRadius: 'var(--radius-lg)',
-          padding: '20px',
-          marginBottom: '24px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center'
-        }}>
-          <div>
-            <div style={{ fontWeight: 700, fontSize: '1.05rem', color: '#fbbf24', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span>📅</span> Next Interview: Round {nextInterview.round_no} with {nextInterview.company_name}
+        <div
+          style={{
+            backgroundColor: '#fff',
+            border: '1px solid #fde68a',
+            borderLeft: '4px solid #d97706',
+            borderRadius: 'var(--radius-lg)',
+            padding: '20px 24px',
+            display: 'flex',
+            flexWrap: 'wrap',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            gap: '16px',
+            boxShadow: '0 4px 16px rgba(217, 119, 6, 0.06)',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '14px' }}>
+            <div
+              style={{
+                width: '36px',
+                height: '36px',
+                borderRadius: '50%',
+                backgroundColor: 'rgba(217, 119, 6, 0.1)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#d97706',
+                flexShrink: 0,
+              }}
+            >
+              <IconCalendarEvent size={20} />
             </div>
-            <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
-              {nextInterview.posting_title} • Scheduled for {new Date(nextInterview.scheduled_at).toLocaleString()} ({nextInterview.duration_min} mins)
+            <div>
+              <div style={{ fontWeight: 700, fontSize: '0.98rem', color: 'var(--ink)' }}>
+                Upcoming Interview: Round {nextInterview.round_no} with {nextInterview.company_name}
+              </div>
+              <div style={{ fontSize: '0.84rem', color: 'var(--ink-muted)', marginTop: '4px' }}>
+                {nextInterview.posting_title} • Scheduled for {new Date(nextInterview.scheduled_at).toLocaleString()} ({nextInterview.duration_min} mins)
+              </div>
             </div>
           </div>
-          <a href={nextInterview.link_or_room} target="_blank" rel="noreferrer" className="btn btn-secondary">
-            Join Interview Room →
+          <a
+            href={nextInterview.link_or_room}
+            target="_blank"
+            rel="noreferrer"
+            className="btn btn-secondary"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+          >
+            <IconVideo size={14} /> Join Meeting Room
           </a>
         </div>
       )}
 
-      {/* Metrics Grid */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-        gap: '20px',
-        marginBottom: '32px'
-      }}>
-        <div className="glass-card" style={{ padding: '20px' }}>
-          <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>
-            Active Applications
-          </div>
-          <div style={{ fontSize: '2rem', fontWeight: 800, marginTop: '8px', color: '#60a5fa' }}>
-            {activeCount}
-          </div>
-          <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
-            Limit: 5 active per policy
-          </div>
-        </div>
-
-        <div className="glass-card" style={{ padding: '20px' }}>
-          <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>
-            Shortlisted
-          </div>
-          <div style={{ fontSize: '2rem', fontWeight: 800, marginTop: '8px', color: '#c084fc' }}>
-            {stages?.Shortlisted || 0}
-          </div>
-          <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
-            Passed initial screening
-          </div>
-        </div>
-
-        <div className="glass-card" style={{ padding: '20px' }}>
-          <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>
-            In Interview
-          </div>
-          <div style={{ fontSize: '2rem', fontWeight: 800, marginTop: '8px', color: '#fbbf24' }}>
-            {stages?.Interview || 0}
-          </div>
-          <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
-            Technical & HR rounds
-          </div>
-        </div>
-
-        <div className="glass-card" style={{ padding: '20px' }}>
-          <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>
-            Offers Received
-          </div>
-          <div style={{ fontSize: '2rem', fontWeight: 800, marginTop: '8px', color: '#34d399' }}>
-            {(stages?.Offered || 0) + (stages?.Accepted || 0)}
-          </div>
-          <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
-            Accepted: {stages?.Accepted || 0}
-          </div>
-        </div>
+      {/* KPI Metrics Grid */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+          gap: '16px',
+        }}
+      >
+        <StatCard
+          label="Active Applications"
+          value={activeCount}
+          caption="Max 5 active policy"
+          icon={<IconFileText size={18} />}
+        />
+        <StatCard
+          label="Shortlisted"
+          value={stages?.Shortlisted || 0}
+          caption="Initial screening cleared"
+          icon={<IconChecklist size={18} />}
+        />
+        <StatCard
+          label="In Interview"
+          value={stages?.Interview || 0}
+          caption="Technical & HR rounds"
+          icon={<IconCalendarEvent size={18} />}
+        />
+        <StatCard
+          label="Offers Received"
+          value={(stages?.Offered || 0) + (stages?.Accepted || 0)}
+          caption={`Accepted: ${stages?.Accepted || 0}`}
+          icon={<IconTrophy size={18} />}
+        />
       </div>
 
-      {/* Two Column Layout: Upcoming Deadlines & Notifications */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '24px' }}>
+      {/* Two Column Layout: Deadlines Closing Soon & Notifications */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))',
+          gap: '24px',
+        }}
+      >
         {/* Deadlines Closing Soon */}
-        <div className="glass-card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-            <h2 style={{ fontSize: '1.1rem', fontWeight: 700 }}>⏳ Deadlines Closing Soon</h2>
-            <Link href="/student/browse" style={{ fontSize: '0.82rem', color: 'var(--accent-primary)', fontWeight: 600 }}>
-              Browse all →
+        <div className="card" style={{ padding: '24px' }}>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '18px',
+              paddingBottom: '12px',
+              borderBottom: '1px solid var(--border)',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <IconClock size={16} color="var(--ink-muted)" />
+              <h2 style={{ fontSize: '0.98rem', fontWeight: 700, margin: 0, color: 'var(--ink)' }}>
+                Application Deadlines
+              </h2>
+            </div>
+            <Link
+              href="/student/browse"
+              style={{
+                fontFamily: 'var(--font-mono), monospace',
+                fontSize: '0.72rem',
+                textTransform: 'uppercase',
+                letterSpacing: '0.06em',
+                fontWeight: 600,
+                color: 'var(--ink)',
+              }}
+            >
+              Browse All →
             </Link>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {upcomingDeadlines?.map((d) => (
-              <div
-                key={d.posting_id}
-                style={{
-                  background: 'rgba(255, 255, 255, 0.03)',
-                  border: '1px solid var(--border-color)',
-                  borderRadius: 'var(--radius-md)',
-                  padding: '14px',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center'
-                }}
-              >
-                <div>
-                  <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>{d.title}</div>
-                  <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '2px' }}>
-                    {d.company_name} • {d.location} • ₹{parseFloat(d.stipend).toLocaleString()}/mo
-                  </div>
-                </div>
-                <div style={{ textAlign: 'right' }}>
-                  <div className="badge badge-rejected" style={{ fontSize: '0.72rem' }}>
-                    {d.days_remaining} days left
-                  </div>
-                </div>
+            {upcomingDeadlines?.length === 0 ? (
+              <div style={{ padding: '24px', textAlign: 'center', color: 'var(--ink-muted)', fontSize: '0.85rem' }}>
+                No immediate deadlines in the next 7 days.
               </div>
-            ))}
+            ) : (
+              upcomingDeadlines.map((d) => (
+                <div
+                  key={d.posting_id}
+                  style={{
+                    padding: '14px 16px',
+                    borderRadius: 'var(--radius-md)',
+                    border: '1px solid var(--border)',
+                    backgroundColor: 'var(--surface-subtle)',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    gap: '12px',
+                  }}
+                >
+                  <div>
+                    <div style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--ink)' }}>{d.title}</div>
+                    <div
+                      style={{
+                        fontFamily: 'var(--font-mono), monospace',
+                        fontSize: '0.74rem',
+                        color: 'var(--ink-muted)',
+                        marginTop: '3px',
+                      }}
+                    >
+                      {d.company_name} • {d.location} • ₹{parseFloat(d.stipend).toLocaleString()}/mo
+                    </div>
+                  </div>
+                  <div
+                    style={{
+                      fontFamily: 'var(--font-mono), monospace',
+                      fontSize: '0.72rem',
+                      fontWeight: 700,
+                      padding: '4px 8px',
+                      borderRadius: '999px',
+                      backgroundColor: 'rgba(217, 45, 32, 0.08)',
+                      color: 'var(--accent)',
+                      border: '1px solid rgba(217, 45, 32, 0.2)',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {d.days_remaining}d remaining
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
 
         {/* MongoDB Activity Notifications Stream */}
-        <div className="glass-card">
-          <h2 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '16px' }}>
-            🔔 System Notifications (MongoDB)
-          </h2>
+        <div className="card" style={{ padding: '24px' }}>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '18px',
+              paddingBottom: '12px',
+              borderBottom: '1px solid var(--border)',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <IconBell size={16} color="var(--ink-muted)" />
+              <h2 style={{ fontSize: '0.98rem', fontWeight: 700, margin: 0, color: 'var(--ink)' }}>
+                Activity Stream (MongoDB)
+              </h2>
+            </div>
+            <span
+              style={{
+                fontFamily: 'var(--font-mono), monospace',
+                fontSize: '0.68rem',
+                textTransform: 'uppercase',
+                color: 'var(--ink-muted)',
+              }}
+            >
+              Live Feed
+            </span>
+          </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {notifications?.length === 0 ? (
-              <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>No new notifications.</div>
+              <div style={{ padding: '24px', textAlign: 'center', color: 'var(--ink-muted)', fontSize: '0.85rem' }}>
+                No system notifications.
+              </div>
             ) : (
-              notifications?.map((n, i) => (
+              notifications.map((n, i) => (
                 <div
                   key={i}
                   style={{
-                    padding: '12px',
+                    padding: '12px 14px',
                     borderRadius: 'var(--radius-md)',
-                    background: 'rgba(255, 255, 255, 0.02)',
-                    border: '1px solid var(--border-color)',
-                    fontSize: '0.85rem'
+                    border: '1px solid var(--border)',
+                    backgroundColor: '#ffffff',
                   }}
                 >
-                  <div style={{ fontWeight: 600, color: '#f3f4f6' }}>{n.title}</div>
-                  <div style={{ color: 'var(--text-secondary)', marginTop: '2px', fontSize: '0.8rem' }}>
-                    {n.message}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '8px' }}>
+                    <span style={{ fontWeight: 600, fontSize: '0.86rem', color: 'var(--ink)' }}>{n.title}</span>
+                    <span
+                      style={{
+                        fontFamily: 'var(--font-mono), monospace',
+                        fontSize: '0.68rem',
+                        color: 'var(--ink-muted)',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {new Date(n.created_at).toLocaleDateString()}
+                    </span>
                   </div>
-                  <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '6px' }}>
-                    {new Date(n.created_at).toLocaleString()}
+                  <div style={{ fontSize: '0.8rem', color: 'var(--ink-muted)', marginTop: '3px', lineHeight: 1.4 }}>
+                    {n.message}
                   </div>
                 </div>
               ))
