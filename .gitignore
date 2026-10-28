@@ -54,3 +54,7 @@ Repo/
 
 # Temporary visual audit screenshots
 screenshots/
+.vercel
+.env*
+.agents/
+skills-lock.json
