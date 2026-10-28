@@ -106,16 +106,20 @@ test.before(async () => {
   // 1. Verify DB is accessible
   await query('SELECT 1');
 
-  // 2. Spawn Next.js server on dedicated test port
-  serverProcess = spawn('npx', ['next', 'start', '-p', String(TEST_PORT)], {
+  // 2. Spawn Next.js server on dedicated test port (auto-detect dev vs start)
+  const fs = require('fs');
+  const hasBuild = fs.existsSync(path.resolve(__dirname, '../.next/BUILD_ID'));
+  const cmd = hasBuild ? ['next', 'start', '-p', String(TEST_PORT)] : ['next', 'dev', '-p', String(TEST_PORT)];
+
+  serverProcess = spawn('npx', cmd, {
     cwd: path.resolve(__dirname, '..'),
     stdio: 'ignore'
   });
 
-  // 3. Poll server until active
+  // 3. Poll server until active (up to 30s)
   const start = Date.now();
   let isReady = false;
-  while (Date.now() - start < 15000) {
+  while (Date.now() - start < 30000) {
     try {
       const res = await fetch(`${BASE_URL}/api/auth/me`);
       if (res.status === 200) {
@@ -123,11 +127,11 @@ test.before(async () => {
         break;
       }
     } catch {
-      await new Promise(r => setTimeout(r, 100));
+      await new Promise(r => setTimeout(r, 200));
     }
   }
 
-  assert.ok(isReady, `Next.js test server failed to start on port ${TEST_PORT} within 15s`);
+  assert.ok(isReady, `Next.js test server failed to start on port ${TEST_PORT} within 30s`);
 });
 
 test.after(async () => {
