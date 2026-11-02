@@ -3,6 +3,8 @@ import { NextResponse } from 'next/server';
 const { query } = require('../../../../lib/db');
 const { requireAuth } = require('../../../../lib/auth');
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request) {
   try {
     const user = requireAuth(request, ['student']);

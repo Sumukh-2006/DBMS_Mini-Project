@@ -4,6 +4,8 @@ const { query } = require('../../../../../lib/db');
 const { requireAuth } = require('../../../../../lib/auth');
 const { getResumeSkillsFrequency } = require('../../../../../lib/aggregations');
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request) {
   try {
     requireAuth(request, ['admin', 'recruiter']);

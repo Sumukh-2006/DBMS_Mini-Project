@@ -4,6 +4,8 @@ const { query } = require('../../../../lib/db');
 const { requireAuth } = require('../../../../lib/auth');
 const { getMongoDb } = require('../../../../lib/mongo');
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request) {
   try {
     const user = requireAuth(request, ['student']);

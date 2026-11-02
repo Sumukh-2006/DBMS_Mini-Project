@@ -5,6 +5,8 @@ const { hashPassword, createToken, COOKIE_NAME } = require('../../../../lib/auth
 const { generateEmbedding, vectorToSql } = require('../../../../lib/embeddings');
 const { getMongoDb } = require('../../../../lib/mongo');
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request) {
   try {
     const body = await request.json();

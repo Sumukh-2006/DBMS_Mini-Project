@@ -3,6 +3,8 @@ import { NextResponse } from 'next/server';
 const { query } = require('../../../../lib/db');
 const { verifyPassword, createToken, COOKIE_NAME } = require('../../../../lib/auth');
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request) {
   try {
     const body = await request.json();

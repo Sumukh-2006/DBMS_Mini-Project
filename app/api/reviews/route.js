@@ -4,6 +4,8 @@ const { requireAuth } = require('../../../lib/auth');
 const { getMongoDb } = require('../../../lib/mongo');
 const { query } = require('../../../lib/db');
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);

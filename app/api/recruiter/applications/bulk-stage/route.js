@@ -3,6 +3,8 @@ import { NextResponse } from 'next/server';
 const { pool } = require('../../../../../lib/db');
 const { requireAuth } = require('../../../../../lib/auth');
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request) {
   let client = null;
   let inTransaction = false;
